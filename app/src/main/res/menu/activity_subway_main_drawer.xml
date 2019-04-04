@@ -9,12 +9,12 @@
             android:icon="@drawable/ic_directions_bus_black_24dp"
             android:title="버스" />
         <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
+            android:id="@+id/nav_fav"
+            android:icon="@drawable/ic_star_black_24dp"
             android:title="즐겨찾기" />
         <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
+            android:id="@+id/nav_lost"
+            android:icon="@drawable/ic_shopping_basket_black_24dp"
             android:title="분실물" />
         <item
             android:id="@+id/nav_manage"

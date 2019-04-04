@@ -35,6 +35,7 @@ public class Subway_main extends AppCompatActivity
         setContentView(R.layout.activity_subway_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false); //원래 툴바 타이틀(제목)없애줌
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -95,29 +96,33 @@ public class Subway_main extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
+        if (id == R.id.nav_bus) {
+            //버스 메인 화면으로 이동
+            Intent intent = new Intent(Subway_main.this, Bus_main.class);
+            startActivityForResult(intent, 1000);
+        } else if (id == R.id.nav_fav) {
+            //즐겨찾기 화면으로 이동
+            Intent intent = new Intent(Subway_main.this, subway_favorites.class);
+            startActivityForResult(intent, 1000);
+        } else if (id == R.id.nav_lost) {
+            //분실물 화면으로 이동
+            Intent intent = new Intent(Subway_main.this, subway_lost_property.class);
+            startActivityForResult(intent, 1000);
         } else if (id == R.id.nav_manage) {
-
+            //설정 화면으로 이동
+            Intent intent = new Intent(Subway_main.this, common_setting.class);
+            startActivityForResult(intent, 1000);
         } else if (id == R.id.nav_share) {
-
+            //공유하기
         } else if (id == R.id.nav_send) {
-
+            //개발자 문의 화면으로 이동
+            Intent intent = new Intent(Subway_main.this, common_developer_question.class);
+            startActivityForResult(intent, 1000);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    // 메인화면 테스트 버튼(클릭 시 bus_main으로)
-    public void testButton(View v){
-        Intent intent = new Intent(getApplicationContext(), Bus_main.class);
-        startActivity(intent);
     }
 
     // kakao 키 해시값 받아오기(하단 Logcat부분에 KeyHash 검색
