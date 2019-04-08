@@ -20,22 +20,25 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.kakao.kakaolink.KakaoLink;
+import com.kakao.kakaolink.KakaoTalkLinkMessageBuilder;
+import com.kakao.util.KakaoParameterException;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class Subway_main extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    ImageView m_imageview; //확대축소를 위한 부분
-    PhotoViewAttacher mAttacher;//확대축소를 위한 부분
+    //ImageView m_imageview; //확대축소를 위한 부분
+   // PhotoViewAttacher mAttacher;//확대축소를 위한 부분
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_subway_main);
 
-        m_imageview = (ImageView) findViewById(R.id.sub_map);//확대축소를 위한 부분
-        mAttacher = new PhotoViewAttacher(m_imageview);//확대축소를 위한 부분
+        //m_imageview = (ImageView) findViewById(R.id.sub_map);//확대축소를 위한 부분
+       // mAttacher = new PhotoViewAttacher(m_imageview);//확대축소를 위한 부분
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -79,6 +82,7 @@ public class Subway_main extends AppCompatActivity
         return true;
     }
 
+    //오른쪽상단 세팅부부분
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -118,6 +122,22 @@ public class Subway_main extends AppCompatActivity
             startActivityForResult(intent, 1000);
         } else if (id == R.id.nav_share) {
             //공유하기
+            try {
+                KakaoLink link=KakaoLink.getKakaoLink(this);
+                KakaoTalkLinkMessageBuilder builder=link.createKakaoTalkLinkMessageBuilder();
+
+                //메시지 추가
+                builder.addText("카카오 링크 공유하기");
+
+                //앱 실행버튼
+                builder.addAppButton("앱 실행하기");
+
+                //메시지 발송
+                link.sendMessage(builder,this);
+
+            } catch (KakaoParameterException e) {
+                e.printStackTrace();
+            }
         } else if (id == R.id.nav_send) {
             //개발자 문의 화면으로 이동
             Intent intent = new Intent(Subway_main.this, common_developer_question.class);
