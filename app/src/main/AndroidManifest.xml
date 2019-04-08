@@ -27,13 +27,11 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data
-                    android:host="@string/kakaolink_host"
-                    android:scheme="@string/kakao_scheme" />
+                <data android:scheme="@string/kakao_scheme"
+                    android:host="@string/kakaolink_host" />
             </intent-filter>
         </activity>
         <activity
@@ -44,6 +42,7 @@
         <meta-data
             android:name="com.kakao.sdk.AppKey"
             android:value="61d3254080b5d9424b98a292a7984c8e" />
+
     </application>
 
 </manifest>
