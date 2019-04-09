@@ -29,7 +29,7 @@ import java.security.NoSuchAlgorithmException;
 
 public class Subway_main extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
+ ///테스트테스트!!!
     //ImageView m_imageview; //확대축소를 위한 부분
    // PhotoViewAttacher mAttacher;//확대축소를 위한 부분
     @Override
