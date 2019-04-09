@@ -1,5 +1,6 @@
 package com.example.choijh.subwayapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -90,18 +91,66 @@ public class Bus_main extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        if (id == R.id.nav_subway) {
+            //버스 메인 화면으로 이동
+            Intent intent = new Intent(Bus_main.this, Bus_main.class);
+            startActivityForResult(intent, 1000);
+        } else if (id == R.id.nav_fav2) {
+            //즐겨찾기 화면으로 이동
+            Intent intent = new Intent(Bus_main.this, subway_favorites.class);
+            startActivityForResult(intent, 1000);
+        } else if (id == R.id.nav_lost2) {
+            //분실물 화면으로 이동
+            Intent intent = new Intent(Bus_main.this, subway_lost_property.class);
+            startActivityForResult(intent, 1000);
+        } else if (id == R.id.nav_manage2) {
+            //설정 화면으로 이동
+            Intent intent = new Intent(Bus_main.this, common_setting.class);
+            startActivityForResult(intent, 1000);
+        } else if (id == R.id.nav_share2) {
+            //Intent intent = new Intent(Bus_main.this, kakaolink.class);
+            //startActivityForResult(intent, 1001);
+            //공유하기
+            //try {
+            //  KakaoLink link=KakaoLink.getKakaoLink(this);
+            //  KakaoTalkLinkMessageBuilder builder=link.createKakaoTalkLinkMessageBuilder();
 
-        } else if (id == R.id.nav_slideshow) {
+            //메시지 추가
+            // builder.addText("[지하철&버스 어플 : OZ] 같이 사용해요");
 
-        } else if (id == R.id.nav_manage) {
+            //앱 실행버튼
+            // builder.addAppButton("앱 실행하기");
 
-        } else if (id == R.id.nav_share) {
+            //메시지 발송
+            //   link.sendMessage(builder,this);
 
-        } else if (id == R.id.nav_send) {
+            // } catch (KakaoParameterException e) {
+            //     e.printStackTrace();
+            // }
+        } else if (id == R.id.nav_send2) {
+            //개발자 문의
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            try {
+                intent.setType("text/html");
+                String[] address = {"ozdeveloper@naver.com"};
+                intent.putExtra(Intent.EXTRA_EMAIL, address);
+                intent.putExtra(Intent.EXTRA_SUBJECT, "제목");
+                intent.putExtra(Intent.EXTRA_TEXT, "어플 사용시 불편하신 사항이나 문의 내용을 입력해주세요.");
+                intent.setPackage("com.google.android.gm");
+                if(intent.resolveActivity(getPackageManager())!=null)
+                    startActivity(intent);
+                startActivity(intent);
+            } catch (Exception e) {
+                e.printStackTrace();
+                intent.setType("text/html");
+                intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"ozdeveloper@naver.com"});
+                intent.putExtra(Intent.EXTRA_SUBJECT, "제목");
+                intent.putExtra(Intent.EXTRA_TEXT, "어플 사용시 불편하신 사항이나 문의 내용을 입력해주세요.");
+                startActivity(Intent.createChooser(intent, "Send Email"));
+            }
 
+            //Intent intent = new Intent(Bus_main.this, common_developer_question.class);
+            //startActivityForResult(intent, 1000);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

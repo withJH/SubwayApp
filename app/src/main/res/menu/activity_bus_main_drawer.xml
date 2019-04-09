@@ -5,33 +5,33 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Import" />
+            android:id="@+id/nav_subway"
+            android:icon="@drawable/ic_directions_bus_black_24dp"
+            android:title="지하철" />
         <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
+            android:id="@+id/nav_fav2"
+            android:icon="@drawable/ic_star_black_24dp"
+            android:title="즐겨찾기" />
         <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
+            android:id="@+id/nav_lost2"
+            android:icon="@drawable/ic_shopping_basket_black_24dp"
+            android:title="분실물" />
         <item
-            android:id="@+id/nav_manage"
+            android:id="@+id/nav_manage2"
             android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
+            android:title="설정" />
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="이름 뭘로 할지">
         <menu>
             <item
-                android:id="@+id/nav_share"
+                android:id="@+id/nav_share2"
                 android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
+                android:title="공유하기" />
             <item
-                android:id="@+id/nav_send"
+                android:id="@+id/nav_send2"
                 android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
+                android:title="개발자 문의" />
         </menu>
     </item>
 
