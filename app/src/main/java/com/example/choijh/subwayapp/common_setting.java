@@ -5,6 +5,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -93,28 +94,53 @@ public class common_setting extends AppCompatActivity implements ListViewBtnAdap
         // 앱 관리(공지사항, 도움말, 문의하기, 앱 버전, 개인정보 처리방침?, 오픈소스 라이선스,
         //이용약관, 위치기반 서비스 이용약관)
         item = new ListViewBtnItem() ;
-        item.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_star_border_black_24dp)) ;
-        item.setText("즐겨찾기 초기화") ;
+        item.setIcon(AppCompatResources.getDrawable(common_setting.this, R.drawable.ic_star_border_black_24dp)) ;
+        item.setText(" 즐겨찾기 초기화") ;
         list.add(item) ;
 
         item = new ListViewBtnItem() ;
-        item.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_access_alarm_black_24dp)) ;
-        item.setText("알림설정") ;
+        item.setIcon(AppCompatResources.getDrawable(this, R.drawable.ic_access_alarm_black_24dp)) ;
+        item.setText(" 알림설정") ;
         list.add(item) ;
 
         item = new ListViewBtnItem() ;
-        item.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_help_outline_black_24dp)) ;
-        item.setText("공지사항") ;
+        item.setIcon(AppCompatResources.getDrawable(this, R.drawable.ic_help_outline_black_24dp)) ;
+        item.setText(" 공지사항") ;
         list.add(item) ;
 
         item = new ListViewBtnItem() ;
-        item.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_help_black_24dp)) ;
-        item.setText("도움말") ;
+        item.setIcon(AppCompatResources.getDrawable(this, R.drawable.ic_help_black_24dp)) ;
+        item.setText(" 도움말") ;
         list.add(item) ;
 
         item = new ListViewBtnItem() ;
-        item.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_info_black_24dp)) ;
-        item.setText("도움말") ;
+        item.setIcon(AppCompatResources.getDrawable(this, R.drawable.ic_feedback_black_24dp)) ;
+        item.setText(" 문의하기") ;
+        list.add(item) ;
+
+        item = new ListViewBtnItem() ;
+        item.setIcon(AppCompatResources.getDrawable(this, R.drawable.ic_info_black_24dp)) ;
+        item.setText(" 앱 버전") ;
+        list.add(item) ;
+
+        item = new ListViewBtnItem() ;
+        item.setIcon(AppCompatResources.getDrawable(this, R.drawable.ic_sort_black_24dp)) ;
+        item.setText(" 개인정보 처리방침") ;
+        list.add(item) ;
+
+        item = new ListViewBtnItem() ;
+        item.setIcon(AppCompatResources.getDrawable(this, R.drawable.ic_verified_user_black_24dp)) ;
+        item.setText(" 오픈소스 라이선스") ;
+        list.add(item) ;
+
+        item = new ListViewBtnItem() ;
+        item.setIcon(AppCompatResources.getDrawable(this, R.drawable.ic_description_black_24dp)) ;
+        item.setText(" 이용약관") ;
+        list.add(item) ;
+
+        item = new ListViewBtnItem() ;
+        item.setIcon(AppCompatResources.getDrawable(this, R.drawable.ic_info_black_24dp)) ;
+        item.setText(" 위치기반 서비스 이용약관") ;
         list.add(item) ;
 
         return true ;

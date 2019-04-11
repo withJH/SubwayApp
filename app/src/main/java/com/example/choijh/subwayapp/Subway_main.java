@@ -48,8 +48,9 @@ public class Subway_main extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                //버스 메인 화면으로 이동
+                Intent intent = new Intent(Subway_main.this, Bus_main.class);
+                startActivityForResult(intent, 1000);
             }
         });
 
