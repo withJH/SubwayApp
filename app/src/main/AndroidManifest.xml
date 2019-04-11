@@ -12,7 +12,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".subway_lost_property"></activity>
+        <activity android:name=".subway_lost_property" />
         <activity android:name=".subway_favorites" />
         <activity android:name=".common_setting" />
         <activity
@@ -24,14 +24,6 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:scheme="@string/kakao_scheme"
-                    android:host="@string/kakaolink_host" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".Bus_main"
@@ -42,6 +34,10 @@
             android:name="com.kakao.sdk.AppKey"
             android:value="61d3254080b5d9424b98a292a7984c8e" />
 
+        <activity
+            android:name=".Subway_search"
+            android:label="@string/title_activity_subway_search"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

@@ -20,25 +20,23 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.kakao.kakaolink.KakaoLink;
-import com.kakao.kakaolink.KakaoTalkLinkMessageBuilder;
-import com.kakao.util.KakaoParameterException;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class Subway_main extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
- ///테스트테스트!!!
-    //ImageView m_imageview; //확대축소를 위한 부분
-   // PhotoViewAttacher mAttacher;//확대축소를 위한 부분
+
+    ImageView m_imageview; //확대축소를 위한 부분
+    PhotoViewAttacher mAttacher;//확대축소를 위한 부분
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_subway_main);
 
-        //m_imageview = (ImageView) findViewById(R.id.sub_map);//확대축소를 위한 부분
-       // mAttacher = new PhotoViewAttacher(m_imageview);//확대축소를 위한 부분
+        m_imageview = (ImageView) findViewById(R.id.sub_map);//확대축소를 위한 부분
+        mAttacher = new PhotoViewAttacher(m_imageview);//확대축소를 위한 부분
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -63,7 +61,7 @@ public class Subway_main extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        getHashKey();
+        //getHashKey();
     }
 
     @Override
@@ -80,10 +78,10 @@ public class Subway_main extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.subway_main, menu);
+
         return true;
     }
 
-    //오른쪽상단 세팅부부분
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -91,9 +89,9 @@ public class Subway_main extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.action_search_layout) { // 검색 화면으로 이동
+            Intent intent = new Intent(Subway_main.this, Subway_search.class);
+            startActivityForResult(intent, 1001);
         }
 
         return super.onOptionsItemSelected(item);
@@ -122,49 +120,11 @@ public class Subway_main extends AppCompatActivity
             Intent intent = new Intent(Subway_main.this, common_setting.class);
             startActivityForResult(intent, 1000);
         } else if (id == R.id.nav_share) {
-            //Intent intent = new Intent(Subway_main.this, kakaolink.class);
-            //startActivityForResult(intent, 1001);
             //공유하기
-            //try {
-              //  KakaoLink link=KakaoLink.getKakaoLink(this);
-              //  KakaoTalkLinkMessageBuilder builder=link.createKakaoTalkLinkMessageBuilder();
-
-                //메시지 추가
-              // builder.addText("[지하철&버스 어플 : OZ] 같이 사용해요");
-
-                //앱 실행버튼
-               // builder.addAppButton("앱 실행하기");
-
-                //메시지 발송
-             //   link.sendMessage(builder,this);
-
-           // } catch (KakaoParameterException e) {
-           //     e.printStackTrace();
-           // }
         } else if (id == R.id.nav_send) {
-            //개발자 문의
-            Intent intent = new Intent(Intent.ACTION_SEND);
-            try {
-                intent.setType("text/html");
-                String[] address = {"ozdeveloper@naver.com"};
-                intent.putExtra(Intent.EXTRA_EMAIL, address);
-                intent.putExtra(Intent.EXTRA_SUBJECT, "제목");
-                intent.putExtra(Intent.EXTRA_TEXT, "어플 사용시 불편하신 사항이나 문의 내용을 입력해주세요.");
-                intent.setPackage("com.google.android.gm");
-                if(intent.resolveActivity(getPackageManager())!=null)
-                    startActivity(intent);
-                startActivity(intent);
-            } catch (Exception e) {
-                e.printStackTrace();
-                intent.setType("text/html");
-                intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"ozdeveloper@naver.com"});
-                intent.putExtra(Intent.EXTRA_SUBJECT, "제목");
-                intent.putExtra(Intent.EXTRA_TEXT, "어플 사용시 불편하신 사항이나 문의 내용을 입력해주세요.");
-                startActivity(Intent.createChooser(intent, "Send Email"));
-            }
-
-            //Intent intent = new Intent(Subway_main.this, common_developer_question.class);
-            //startActivityForResult(intent, 1000);
+            //개발자 문의 화면으로 이동
+//            Intent intent = new Intent(Subway_main.this, common_developer_question.class);
+//            startActivityForResult(intent, 1000);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
