@@ -22,21 +22,21 @@ import android.widget.ImageView;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import uk.co.senab.photoview.PhotoViewAttacher;
+//import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class Subway_main extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    ImageView m_imageview; //확대축소를 위한 부분
-    PhotoViewAttacher mAttacher;//확대축소를 위한 부분
+    //ImageView m_imageview; //확대축소를 위한 부분
+    //PhotoViewAttacher mAttacher;//확대축소를 위한 부분
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_subway_main);
 
-        m_imageview = (ImageView) findViewById(R.id.sub_map);//확대축소를 위한 부분
-        mAttacher = new PhotoViewAttacher(m_imageview);//확대축소를 위한 부분
+       // m_imageview = (ImageView) findViewById(R.id.sub_map);//확대축소를 위한 부분
+        //mAttacher = new PhotoViewAttacher(m_imageview);//확대축소를 위한 부분
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -123,8 +123,27 @@ public class Subway_main extends AppCompatActivity
             //공유하기
         } else if (id == R.id.nav_send) {
             //개발자 문의 화면으로 이동
-//            Intent intent = new Intent(Subway_main.this, common_developer_question.class);
-//            startActivityForResult(intent, 1000);
+            Intent emailIntent = new Intent(Intent.ACTION_SEND);
+
+            try {
+                emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{"hanshin@gmail.com"});
+                emailIntent.setType("text/html");
+                emailIntent.setPackage("com.google.android.gm");
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT,"[이끌]");
+                emailIntent.putExtra(Intent.EXTRA_TEXT,"불편하신 부분이나 문의 사항에 대해 입력해주세요.\n");
+                if(emailIntent.resolveActivity(getPackageManager())!=null)
+                    startActivity(emailIntent);
+
+                startActivity(emailIntent);
+            } catch (Exception e) {
+                e.printStackTrace();
+
+                emailIntent.setType("text/html");
+                emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{"hanshin@gmail.com"});
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT,"[이끌]");
+                emailIntent.putExtra(Intent.EXTRA_TEXT,"불편하신 부분이나 문의 사항에 대해 입력해주세요.\n");
+                startActivity(Intent.createChooser(emailIntent, "Send Email"));
+            }
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
