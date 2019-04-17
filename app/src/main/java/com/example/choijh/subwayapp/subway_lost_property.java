@@ -58,8 +58,8 @@ public class subway_lost_property extends AppCompatActivity implements ListViewB
         //API
         StrictMode.enableDefaults();
 
-        text= (TextView)findViewById(R.id.text_result_lost);
-        test();
+        //text= (TextView)findViewById(R.id.text_result_lost);
+        //test();
     }
 
     @Override
@@ -101,7 +101,7 @@ public class subway_lost_property extends AppCompatActivity implements ListViewB
 
         return true ;
     }
-
+/*
     //API 활용 부분
     void test(){
         TextView status1 = (TextView) findViewById(R.id.text_result_lost); //파싱된 결과확인!
@@ -146,16 +146,16 @@ public class subway_lost_property extends AppCompatActivity implements ListViewB
                     case XmlPullParser.END_TAG:
 
                         if (parser.getName().equals("STATION_NM")) {
-                            status1.setText(status1.getText() + "지하철역명 : " + STATION_NM + "\n");
+                            status1.setText("지하철역명 : " + STATION_NM + "\n");
                         }
                         if (parser.getName().equals("TEL")) {
-                            status1.setText(status1.getText() + "전화 번호 : " + TEL + "\n");
+                            status1.setText("전화 번호 : " + TEL + "\n");
                         }
-                        if (parser.getName() != null) {
+                        /*if (parser.getName() != null) {
                             status1.setText(status1.getText() + parser.getName());
-                        }
-                        if (parser.getName().equals("item")) {
-                            status1.setText("지하철역명 : " + STATION_NM + "\n 전화 번호 : " + TEL + "\n");
+                        }*/
+                      /*  if (parser.getName().equals("item")) {
+                            status1.setText("\n지하철역명 : " + STATION_NM + "\n 전화 번호 : " + TEL + "\n");
                             initem = false;
                         }
                         break;
@@ -167,4 +167,5 @@ public class subway_lost_property extends AppCompatActivity implements ListViewB
         }
 
     }
+    */
 }

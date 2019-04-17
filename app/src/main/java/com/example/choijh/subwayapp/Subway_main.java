@@ -142,7 +142,7 @@ public class Subway_main extends AppCompatActivity
             startActivityForResult(intent, 1000);
         } else if (id == R.id.nav_fav) {
             //즐겨찾기 화면으로 이동
-            Intent intent = new Intent(Subway_main.this, subway_favorites.class);
+            Intent intent = new Intent(Subway_main.this, common_favorites.class);
             startActivityForResult(intent, 1000);
         } else if (id == R.id.nav_lost) {
             //분실물 화면으로 이동
