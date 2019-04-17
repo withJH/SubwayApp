@@ -122,7 +122,7 @@ public class Subway_main extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.action_search_layout) { // 검색 화면으로 이동
+        if (id == R.id.action_searchbar) { // 검색 화면으로 이동
             Intent intent = new Intent(Subway_main.this, Subway_search.class);
             startActivityForResult(intent, 1001);
         }

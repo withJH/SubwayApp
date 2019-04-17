@@ -15,17 +15,12 @@
 
     </androidx.appcompat.widget.Toolbar>
 
-    <ScrollView
+    <ListView
+        android:id="@+id/station_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/toolbar">
-
-
-        <TextView
-            android:id="@+id/result"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            />
-    </ScrollView>
+        android:layout_below="@+id/toolbar"
+        >
+    </ListView>
 
 </RelativeLayout>

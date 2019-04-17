@@ -3,27 +3,27 @@ package com.example.choijh.subwayapp;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.view.Menu;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 
 public class Subway_search extends AppCompatActivity {
-    TextView text;
-
+    ListView station_list;
     String key="7a6c6556566a686338384f56675879";
-    String data;
+
+    ArrayList<ArrayList> subway_info;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,86 +35,77 @@ public class Subway_search extends AppCompatActivity {
 
         StrictMode.enableDefaults();
 
-        text= (TextView)findViewById(R.id.result);
+        station_list = (ListView) findViewById(R.id.station_list);
+        subway_info = getXmlData();
     }
 
+     ArrayList<ArrayList> getXmlData(){
+        SearchAdapter searchAdapter = new SearchAdapter();
+        ArrayList<String> list = new ArrayList<String>();
+        ArrayList<ArrayList> big_list = new ArrayList<ArrayList>();
 
+        boolean inCD = false, inNAME = false, inNUM = false, inFR = false;
+        String station_code = null, station_nm= null, line_num = null, fr_code = null;
 
-    String getXmlData(String queryUrl){
-        StringBuffer buffer=new StringBuffer();
-        try {
-            URL url= new URL(queryUrl);//문자열로 된 요청 url을 URL 객체로 생성.
-            InputStream is= url.openStream(); //url위치로 입력스트림 연결
+        try{
+            URL url = new URL("http://openapi.seoul.go.kr:8088/"+key
+                    +"/xml/SearchInfoBySubwayNameService/1/716"); //검색 URL부분
 
+            XmlPullParserFactory parserCreator = XmlPullParserFactory.newInstance();
+            XmlPullParser parser = parserCreator.newPullParser();
 
-            XmlPullParserFactory factory= XmlPullParserFactory.newInstance();
-            XmlPullParser xpp= factory.newPullParser();
-            xpp.setInput( new InputStreamReader(is, "UTF-8") ); //inputstream 으로부터 xml 입력받기
+            parser.setInput(url.openStream(), null);
 
-            String tag;
+            int parserEvent = parser.getEventType();
+            System.out.println("파싱시작합니다.");
 
-            xpp.next();
-            int eventType= xpp.getEventType();
-
-            while( eventType != XmlPullParser.END_DOCUMENT ){
-                switch( eventType ){
-                    case XmlPullParser.START_DOCUMENT:
-                        buffer.append("파싱 시작...\n\n");
-                        break;
-
-                    case XmlPullParser.START_TAG:
-                        tag= xpp.getName();//태그 이름 얻어오기
-
-                        if(tag.equals("item")) ;// 첫번째 검색결과
-                        else if(tag.equals("STATION_CD")){
-                            buffer.append("전철역 코드 : ");
-                            xpp.next();
-                            buffer.append(xpp.getText());//addr 요소의 TEXT 읽어와서 문자열버퍼에 추가
-                            buffer.append("\n"); //줄바꿈 문자 추가
-                        }
-                        else if(tag.equals("STATION_NM")){
-                            buffer.append("전철역 명 : ");
-                            xpp.next();
-                            buffer.append(xpp.getText());
-                            buffer.append("\n");
-                        }
-                        else if(tag.equals("LINE_NUM")){
-                            buffer.append("호선 :");
-                            xpp.next();
-                            buffer.append(xpp.getText());//cpId
-                            buffer.append("\n");
-                        }
-                        else if(tag.equals("FR_CODE")){
-                            buffer.append("외부코드 :");
-                            xpp.next();
-                            buffer.append(xpp.getText());//cpNm
-                            buffer.append("\n");
+            while (parserEvent != XmlPullParser.END_DOCUMENT){
+                switch(parserEvent){
+                    case XmlPullParser.START_TAG: //parser가 시작 태그를 만나면 실행
+                        if (parser.getName().equals("STATION_CD")) {
+                            inCD = true;
+                        } else if (parser.getName().equals("STATION_NM")) {
+                            inNAME = true;
+                        } else if (parser.getName().equals("LINE_NUM")) {
+                            inNUM = true;
+                        } else if (parser.getName().equals("FR_CODE")) {
+                            inFR = true;
                         }
                         break;
-
-                    case XmlPullParser.TEXT:
+                     case XmlPullParser.TEXT: //parser가 내용에 접근했을때
+                        if(inCD){
+                            station_code = parser.getText();
+                            inCD = false;
+                        }
+                        if(inNAME){
+                            station_nm = parser.getText();
+                            inNAME = false;
+                        }
+                        if(inNUM){
+                            line_num = parser.getText();
+                            inNUM = false;
+                        }
+                        if(inFR){
+                            fr_code = parser.getText();
+                            inFR = false;
+                        }
                         break;
-
-                    case XmlPullParser.END_TAG:
-                        tag= xpp.getName(); //태그 이름 얻어오기
-
-                        if(tag.equals("item"))
-                            buffer.append("\n");// 첫번째 검색결과종료..줄바꿈
-
+                    case XmlPullParser.END_TAG: //parser가 종료태그 만났을 때
+                        if (parser.getName().equals("row")) {
+                            searchAdapter.addItem(station_code, station_nm, line_num, fr_code);
+                            list.add(station_code); list.add(station_nm); list.add(line_num); list.add(fr_code);
+                            big_list.add(list);
+                        }
                         break;
                 }
-
-                eventType= xpp.next();
-
+                parserEvent = parser.next();
             }
-
-        } catch (Exception e) {
-            // TODO Auto-generated catch blocke.printStackTrace();
+        } catch(Exception e){
             e.printStackTrace();
         }
 
-        return buffer.toString();
-
+        station_list.setAdapter(searchAdapter);
+        return big_list;
     }
 
     @Override
@@ -124,6 +115,7 @@ public class Subway_search extends AppCompatActivity {
 
         SearchView searchView = (SearchView)menu.findItem(R.id.action_search).getActionView();
         searchView.setMaxWidth(Integer.MAX_VALUE);
+        searchView.setIconified(false); // 자동 포커스
 
         searchView.setQueryHint("역 이름으로 검색");
 
@@ -131,42 +123,13 @@ public class Subway_search extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) { // query가 입력 단어
-                String location = null;
-                try {
-                    location = URLEncoder.encode(query,"utf-8");
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-
-                final String queryUrl="http://openapi.seoul.go.kr:8088/"+key
-                        +"/xml/SearchInfoBySubwayNameService/1/5/"+location;
-
-                new Thread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        // TODO Auto-generated method stub
-
-                        data = getXmlData(queryUrl);//아래 메소드를 호출하여 XML data를 파싱해서 String 객체로 얻어오기
-                        System.out.println("이건 한글이다.                                     "+data);
-                        //UI Thread(Main Thread)를 제외한 어떤 Thread도 화면을 변경할 수 없기때문에
-                        //runOnUiThread()를 이용하여 UI Thread가 TextView 글씨 변경하도록 함
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                // TODO Auto-generated method stub
-                                text.setText(data); //TextView에 문자열  data 출력
-                            }
-                        });
-                    }
-                }).start();
 
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                Toast.makeText(Subway_search.this, "입력하고있는 단어 = "+newText, Toast.LENGTH_LONG).show();
+
                 return true;
             }
         });
