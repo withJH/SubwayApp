@@ -92,8 +92,8 @@ public class Bus_main extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_subway) {
-            //버스 메인 화면으로 이동
-            Intent intent = new Intent(Bus_main.this, Bus_main.class);
+            //지하철 메인 화면으로 이동
+            Intent intent = new Intent(Bus_main.this, Subway_main.class);
             startActivityForResult(intent, 1000);
         } else if (id == R.id.nav_fav2) {
             //즐겨찾기 화면으로 이동
