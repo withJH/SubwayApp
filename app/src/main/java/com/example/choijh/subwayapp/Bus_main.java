@@ -97,7 +97,7 @@ public class Bus_main extends AppCompatActivity
             startActivityForResult(intent, 1000);
         } else if (id == R.id.nav_fav2) {
             //즐겨찾기 화면으로 이동
-            Intent intent = new Intent(Bus_main.this, subway_favorites.class);
+            Intent intent = new Intent(Bus_main.this, common_favorites.class);
             startActivityForResult(intent, 1000);
         } else if (id == R.id.nav_lost2) {
             //분실물 화면으로 이동
