@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Bus_main">
+    tools:context=".Subway_route">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -12,7 +12,7 @@
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+            android:id="@+id/toolbar_route"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="#fc6653"
@@ -20,24 +20,26 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="버스"
+                android:text="지하철 경로"
                 android:background="#fc6653"
                 android:textColor="#ffffff"
                 android:layout_gravity="center"
-                android:id="@+id/toolbar_title"
+                android:id="@+id/toolbar_title_route"
                 android:textSize="20sp"
                 />
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <include layout="@layout/content_bus_main" />
+    <include layout="@layout/content_subway_route" /><!--실질적인 내용-->
 
+    <!--플로팅 아이콘(카카오톡 공유)-->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
+        android:id="@+id/fab_route"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
+        android:background="#f8df00"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/ic_directions_subway_black_24dp" />
+        app:srcCompat="@drawable/ic_kakao"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -101,7 +101,7 @@ public class Bus_main extends AppCompatActivity
             startActivityForResult(intent, 1000);
         } else if (id == R.id.nav_lost2) {
             //분실물 화면으로 이동
-            Intent intent = new Intent(Bus_main.this, subway_lost_property.class);
+            Intent intent = new Intent(Bus_main.this, Subway_lost_property.class);
             startActivityForResult(intent, 1000);
         } else if (id == R.id.nav_manage2) {
             //설정 화면으로 이동

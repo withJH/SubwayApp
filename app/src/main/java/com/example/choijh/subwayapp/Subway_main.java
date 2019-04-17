@@ -146,7 +146,7 @@ public class Subway_main extends AppCompatActivity
             startActivityForResult(intent, 1000);
         } else if (id == R.id.nav_lost) {
             //분실물 화면으로 이동
-            Intent intent = new Intent(Subway_main.this, subway_lost_property.class);
+            Intent intent = new Intent(Subway_main.this, Subway_lost_property.class);
             startActivityForResult(intent, 1000);
         } else if (id == R.id.nav_manage) {
             //설정 화면으로 이동
@@ -177,6 +177,10 @@ public class Subway_main extends AppCompatActivity
                 emailIntent.putExtra(Intent.EXTRA_TEXT,"불편하신 부분이나 문의 사항에 대해 입력해주세요.\n");
                 startActivity(Intent.createChooser(emailIntent, "Send Email"));
             }
+        } else if (id == R.id.nav_route) {
+            //임시! 지하철 경로
+            Intent intent = new Intent(Subway_main.this, Subway_route.class);
+            startActivityForResult(intent, 1000);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

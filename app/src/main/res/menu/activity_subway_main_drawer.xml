@@ -29,9 +29,13 @@
                 android:icon="@drawable/ic_menu_share"
                 android:title="공유하기" />
             <item
-                android:id="@+id/nav_send"
+            android:id="@+id/nav_send"
+            android:icon="@drawable/ic_menu_send"
+            android:title="개발자 문의" />
+            <item
+                android:id="@+id/nav_route"
                 android:icon="@drawable/ic_menu_send"
-                android:title="개발자 문의" />
+                android:title="임시:지하철 경로" />
         </menu>
     </item>
 

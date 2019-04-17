@@ -13,13 +13,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserFactory;
 
-import java.net.URL;
-
-
-public class subway_lost_property extends AppCompatActivity implements ListViewBtnAdapter_lost.ListBtnClickListener {
+public class Subway_lost_property extends AppCompatActivity implements ListViewBtnAdapter_lost.ListBtnClickListener {
     TextView text;
 
     String key="4559786d636775733832665a4d7853";
@@ -41,7 +36,7 @@ public class subway_lost_property extends AppCompatActivity implements ListViewB
         loadItemsFromDB(items);
 
         // Adapter 생성
-        adapter = new ListViewBtnAdapter_lost(subway_lost_property.this, R.layout.listview_btn_item_lost, items, this) ;
+        adapter = new ListViewBtnAdapter_lost(Subway_lost_property.this, R.layout.listview_btn_item_lost, items, this) ;
 
         // 리스트뷰 참조 및 Adapter달기
         listView = (ListView) findViewById(R.id.listview_lost);
