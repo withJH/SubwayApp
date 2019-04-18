@@ -5,14 +5,18 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.graphics.drawable.PictureDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.caverock.androidsvg.SVG;
+import com.github.chrisbanes.photoview.OnPhotoTapListener;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -23,25 +27,24 @@ import java.security.NoSuchAlgorithmException;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-//import uk.co.senab.photoview.PhotoViewAttacher;
+
 
 public class Subway_main extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     PhotoView photoView;
     SVG svg;
-    //ImageView m_imageview; //확대축소를 위한 부분
-    //PhotoViewAttacher mAttacher;//확대축소를 위한 부분
+    private Toast mCurrentToast;
+    static final String PHOTO_TAP_TOAST_STRING = "Photo Tap! X: %.2f %% Y:%.2f %% ID: %d";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_subway_main);
 
-       // m_imageview = (ImageView) findViewById(R.id.sub_map);//확대축소를 위한 부분
-        //mAttacher = new PhotoViewAttacher(m_imageview);//확대축소를 위한 부분
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -93,10 +96,41 @@ public class Subway_main extends AppCompatActivity
         } catch (Exception e) {
             e.printStackTrace();
         }
+        photoView.setOnPhotoTapListener(new PhotoTapListener());
+
 //        ((ScalableSVGImageView) findViewById(R.id.imageView1)).internalSetImageAsset("svg_seoul_subway_linemap.svg");
     }
+    private void transition(View view) {
+        if (Build.VERSION.SDK_INT < 21) {
+            Toast.makeText(Subway_main.this, "21+ only, keep out", Toast.LENGTH_SHORT).show();
+        } else {
+            Intent intent = new Intent(Subway_main.this, Subway_fullScreen.class);
+            ActivityOptionsCompat options = ActivityOptionsCompat.
+                    makeSceneTransitionAnimation(Subway_main.this, view, getString(R.string.app_name));//appname부분 수정
+            startActivity(intent, options.toBundle());
+        }
+    }
+    private class PhotoTapListener implements OnPhotoTapListener {
 
 
+        @Override
+        public void onPhotoTap(ImageView view, float x, float y) {
+            float xPercentage = x * 100f;
+            float yPercentage = y * 100f;
+
+//            showToast(String.format(PHOTO_TAP_TOAST_STRING, xPercentage, yPercentage, view == null ? 0 : view.getId()));
+            transition(view);
+        }
+    }
+
+    private void showToast(CharSequence text) {
+        if (mCurrentToast != null) {
+            mCurrentToast.cancel();
+        }
+
+        mCurrentToast = Toast.makeText(Subway_main.this, text, Toast.LENGTH_SHORT);
+        mCurrentToast.show();
+    }
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

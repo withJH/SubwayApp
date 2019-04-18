@@ -15,7 +15,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".Subway_route"></activity>
+        <activity android:name=".Subway_fullScreen"></activity>
+        <activity android:name=".Subway_route" />
         <activity
             android:name=".common_favorites"
             android:label="@string/title_activity_common_favorites"
