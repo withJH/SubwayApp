@@ -5,7 +5,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.graphics.drawable.PictureDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
@@ -27,7 +26,6 @@ import java.security.NoSuchAlgorithmException;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -100,16 +98,14 @@ public class Subway_main extends AppCompatActivity
 
 //        ((ScalableSVGImageView) findViewById(R.id.imageView1)).internalSetImageAsset("svg_seoul_subway_linemap.svg");
     }
+
     private void transition(View view) {
-        if (Build.VERSION.SDK_INT < 21) {
-            Toast.makeText(Subway_main.this, "21+ only, keep out", Toast.LENGTH_SHORT).show();
-        } else {
-            Intent intent = new Intent(Subway_main.this, Subway_fullScreen.class);
-            ActivityOptionsCompat options = ActivityOptionsCompat.
-                    makeSceneTransitionAnimation(Subway_main.this, view, getString(R.string.app_name));//appname부분 수정
-            startActivity(intent, options.toBundle());
-        }
+
+        Intent intent = new Intent(Subway_main.this, Subway_fullScreen.class);
+        startActivity(intent);
+
     }
+
     private class PhotoTapListener implements OnPhotoTapListener {
 
 
@@ -131,6 +127,7 @@ public class Subway_main extends AppCompatActivity
         mCurrentToast = Toast.makeText(Subway_main.this, text, Toast.LENGTH_SHORT);
         mCurrentToast.show();
     }
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -196,9 +193,9 @@ public class Subway_main extends AppCompatActivity
                 emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{"hanshin@gmail.com"});
                 emailIntent.setType("text/html");
                 emailIntent.setPackage("com.google.android.gm");
-                emailIntent.putExtra(Intent.EXTRA_SUBJECT,"[이끌]");
-                emailIntent.putExtra(Intent.EXTRA_TEXT,"불편하신 부분이나 문의 사항에 대해 입력해주세요.\n");
-                if(emailIntent.resolveActivity(getPackageManager())!=null)
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "[이끌]");
+                emailIntent.putExtra(Intent.EXTRA_TEXT, "불편하신 부분이나 문의 사항에 대해 입력해주세요.\n");
+                if (emailIntent.resolveActivity(getPackageManager()) != null)
                     startActivity(emailIntent);
 
                 startActivity(emailIntent);
@@ -207,8 +204,8 @@ public class Subway_main extends AppCompatActivity
 
                 emailIntent.setType("text/html");
                 emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{"hanshin@gmail.com"});
-                emailIntent.putExtra(Intent.EXTRA_SUBJECT,"[이끌]");
-                emailIntent.putExtra(Intent.EXTRA_TEXT,"불편하신 부분이나 문의 사항에 대해 입력해주세요.\n");
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "[이끌]");
+                emailIntent.putExtra(Intent.EXTRA_TEXT, "불편하신 부분이나 문의 사항에 대해 입력해주세요.\n");
                 startActivity(Intent.createChooser(emailIntent, "Send Email"));
             }
         } else if (id == R.id.nav_route) {
@@ -223,7 +220,7 @@ public class Subway_main extends AppCompatActivity
     }
 
     // kakao 키 해시값 받아오기(하단 Logcat부분에 KeyHash 검색
-    private void getHashKey(){
+    private void getHashKey() {
         PackageInfo packageInfo = null;
         try {
             packageInfo = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_SIGNATURES);
