@@ -3,6 +3,8 @@ package com.example.choijh.subwayapp;
 import android.os.StrictMode;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,7 +27,9 @@ public class Subway_lost_property extends AppCompatActivity implements ListViewB
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_subway_lost_property);
         setTitle("분실물 센터");
-        //getSupportActionBar().setDisplayHomeAsUpEnabled(true); // 뒤로가기 버튼
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //Adapter 및 ListView 생성
         ListView listView;
@@ -39,7 +43,7 @@ public class Subway_lost_property extends AppCompatActivity implements ListViewB
         adapter = new ListViewBtnAdapter_lost(Subway_lost_property.this, R.layout.listview_btn_item_lost, items, this) ;
 
         // 리스트뷰 참조 및 Adapter달기
-        listView = (ListView) findViewById(R.id.listview_lost);
+        listView = findViewById(R.id.listview_lost);
         listView.setAdapter(adapter);
 
         // 위에서 생성한 listview에 클릭 이벤트 핸들러 정의.
@@ -70,7 +74,7 @@ public class Subway_lost_property extends AppCompatActivity implements ListViewB
 
     @Override
     public void onListBtnClick(int position) {
-        Toast.makeText(this, Integer.toString(position+1) + " Item is selected..", Toast.LENGTH_SHORT).show() ;
+        Toast.makeText(this, (position + 1) + " Item is selected..", Toast.LENGTH_SHORT).show() ;
     }
 
 

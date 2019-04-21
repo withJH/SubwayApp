@@ -1,5 +1,6 @@
 package com.example.choijh.subwayapp;
 
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,7 +25,9 @@ public class common_setting extends AppCompatActivity implements ListViewBtnAdap
         //setSupportActionBar(toolbar1); //액션바 대신 툴바 적용(오류;)
         //getSupportActionBar().setDisplayShowTitleEnabled(false); //원래 툴바 타이틀(제목)없애줌
         setTitle("설정");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true); // 뒤로가기 버튼
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //Adapter 및 ListView 생성
         ListView listView;
@@ -38,7 +41,7 @@ public class common_setting extends AppCompatActivity implements ListViewBtnAdap
         adapter = new ListViewBtnAdapter(common_setting.this, R.layout.listview_btn_item, items, this) ;
 
         // 리스트뷰 참조 및 Adapter달기
-        listView = (ListView) findViewById(R.id.listview_set);
+        listView = findViewById(R.id.listview_set);
         listView.setAdapter(adapter);
 
         // 위에서 생성한 listview에 클릭 이벤트 핸들러 정의.
@@ -52,7 +55,7 @@ public class common_setting extends AppCompatActivity implements ListViewBtnAdap
 
     @Override
     public void onListBtnClick(int position) {
-        Toast.makeText(this, Integer.toString(position+1) + " Item is selected..", Toast.LENGTH_SHORT).show() ;
+        Toast.makeText(this, (position + 1) + " Item is selected..", Toast.LENGTH_SHORT).show() ;
     }
 
     @Override
@@ -68,7 +71,7 @@ public class common_setting extends AppCompatActivity implements ListViewBtnAdap
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout1);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout1);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {

@@ -11,6 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="#fc6653"
+        app:titleTextColor="#ffffff"
+        app:title="지하철 검색"
         app:popupTheme="@style/AppTheme.PopupOverlay">
 
     </androidx.appcompat.widget.Toolbar>
