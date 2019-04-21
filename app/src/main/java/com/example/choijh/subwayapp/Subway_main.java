@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.graphics.drawable.PictureDrawable;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
