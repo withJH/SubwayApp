@@ -25,7 +25,7 @@ public class Subway_lost_property extends AppCompatActivity implements ListViewB
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_subway_lost_property);
         setTitle("분실물 센터");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true); // 뒤로가기 버튼
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true); // 뒤로가기 버튼
 
         //Adapter 및 ListView 생성
         ListView listView;
