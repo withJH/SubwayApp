@@ -20,9 +20,19 @@ import com.github.chrisbanes.photoview.OnPhotoTapListener;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+//import com.kakao.kakaolink.internal.LinkObject;
+import com.kakao.message.template.LinkObject;
+import com.kakao.kakaolink.v2.KakaoLinkResponse;
+import com.kakao.kakaolink.v2.KakaoLinkService;
+import com.kakao.message.template.TextTemplate;
+import com.kakao.network.callback.ResponseCallback;
+import com.kakao.network.*;
+import com.kakao.util.helper.log.Logger;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -45,11 +55,11 @@ public class Subway_main extends AppCompatActivity
         setContentView(R.layout.activity_subway_main);
 
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false); //원래 툴바 타이틀(제목)없애줌
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -59,13 +69,13 @@ public class Subway_main extends AppCompatActivity
             }
         });
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         //getHashKey();
@@ -74,7 +84,7 @@ public class Subway_main extends AppCompatActivity
             PictureDrawable drawable = new PictureDrawable(svg.renderToPicture());
 
 
-            photoView = (PhotoView) findViewById(R.id.sub_map);
+            photoView = findViewById(R.id.sub_map);
 
             photoView.setImageDrawable(drawable);
             photoView.setMinimumScale(0.5f);
@@ -98,6 +108,7 @@ public class Subway_main extends AppCompatActivity
         photoView.setOnPhotoTapListener(new PhotoTapListener());
 
 //        ((ScalableSVGImageView) findViewById(R.id.imageView1)).internalSetImageAsset("svg_seoul_subway_linemap.svg");
+
     }
 
     private void transition(View view) {
@@ -131,7 +142,7 @@ public class Subway_main extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -186,6 +197,24 @@ public class Subway_main extends AppCompatActivity
             startActivityForResult(intent, 1000);
         } else if (id == R.id.nav_share) {
             //공유하기
+            TextTemplate params = TextTemplate.newBuilder("오즈(OZ)",
+                    LinkObject.newBuilder().setWebUrl("market://details?id=com.example.choijh.subwayapp").setMobileWebUrl("market://details?id=com.example.choijh.subwayapp").build()).setButtonTitle("어플에서 보기").build();
+
+            Map<String, String> serverCallbackArgs = new HashMap<String, String>();
+            serverCallbackArgs.put("user_id", "${current_user_id}");
+            serverCallbackArgs.put("product_id", "${shared_product_id}");
+
+            KakaoLinkService.getInstance().sendDefault(this,params, serverCallbackArgs, new ResponseCallback<KakaoLinkResponse>() {
+                @Override
+                public void onFailure(ErrorResult errorResult) {
+                    Logger.e(errorResult.toString());
+                }
+
+                @Override
+                public void onSuccess(KakaoLinkResponse result) {
+                    // 템플릿 밸리데이션과 쿼터 체크가 성공적으로 끝남. 톡에서 정상적으로 보내졌는지 보장은 할 수 없다. 전송 성공 유무는 서버콜백 기능을 이용하여야 한다.
+                }
+            });
         } else if (id == R.id.nav_send) {
             //개발자 문의 화면으로 이동
             Intent emailIntent = new Intent(Intent.ACTION_SEND);
@@ -215,7 +244,7 @@ public class Subway_main extends AppCompatActivity
             startActivityForResult(intent, 1000);
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -241,6 +270,5 @@ public class Subway_main extends AppCompatActivity
             }
         }
     }
-
 
 }
