@@ -115,11 +115,9 @@ public class Subway_main extends AppCompatActivity
 
         Intent intent = new Intent(Subway_main.this, Subway_fullScreen.class);
         startActivity(intent);
-
     }
 
     private class PhotoTapListener implements OnPhotoTapListener {
-
 
         @Override
         public void onPhotoTap(ImageView view, float x, float y) {
@@ -190,7 +188,7 @@ public class Subway_main extends AppCompatActivity
         } else if (id == R.id.nav_lost) {
             //분실물 화면으로 이동
             Intent intent = new Intent(Subway_main.this, Subway_lost_property.class);
-            startActivityForResult(intent, 1000);
+            startActivity(intent);
         } else if (id == R.id.nav_manage) {
             //설정 화면으로 이동
             Intent intent = new Intent(Subway_main.this, common_setting.class);

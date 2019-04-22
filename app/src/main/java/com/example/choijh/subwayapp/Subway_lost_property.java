@@ -43,7 +43,7 @@ public class Subway_lost_property extends AppCompatActivity implements ListViewB
         adapter = new ListViewBtnAdapter_lost(Subway_lost_property.this, R.layout.listview_btn_item_lost, items, this) ;
 
         // 리스트뷰 참조 및 Adapter달기
-        listView = findViewById(R.id.listview_lost_bus);
+        listView = findViewById(R.id.listview_lost);
         listView.setAdapter(adapter);
 
         // 위에서 생성한 listview에 클릭 이벤트 핸들러 정의.

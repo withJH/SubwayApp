@@ -1,7 +1,5 @@
 package com.example.choijh.subwayapp;
 
-import android.graphics.drawable.Drawable;
-
 //listview 아이템 데이터 클래스 생성
 public class ListViewBtnItem_lost {
     private String textStr ;

@@ -2,10 +2,10 @@ package com.example.choijh.subwayapp;
 
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.widget.EditText;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ListView;
+import android.widget.SearchView;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -20,7 +20,7 @@ public class Subway_search extends AppCompatActivity {
     String key="7a6c6556566a686338384f56675879"; // 지하철역 이름으로 검색 인증키
 
     SearchAdapter searchAdapter = new SearchAdapter(); // 어댑터
-
+    SearchView searchView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,30 +35,45 @@ public class Subway_search extends AppCompatActivity {
         station_list = (ListView) findViewById(R.id.station_list);
         getXmlData(); // API 읽어오기
 
-        EditText editSearch = (EditText)findViewById(R.id.station_search) ; // 검색창
+    }
 
-        editSearch.addTextChangedListener(new TextWatcher() {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.subway_search, menu);
+
+        searchView = (SearchView)menu.findItem(R.id.action_search).getActionView();
+        // searchview 길이 꽉차게 하기
+        searchView.setMaxWidth(Integer.MAX_VALUE);
+        // searchview 힌트 메시지
+        searchView.setQueryHint("역명으로 검색합니다.");
+        searchView.setIconified(false);
+
+        final MenuItem menuItem = menu.getItem(0);
+        //SearchView의 검색 이벤트
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            //검색버튼을 눌렀을 경우
             @Override
-            public void afterTextChanged(Editable edit) {
-                String text = edit.toString(); // 검색 입력한 단어 저장
-                if (text.length() > 0) {
-                    station_list.setFilterText(text);
+            public boolean onQueryTextSubmit(String query) {
+                if (query.length() > 0) {
+                    station_list.setFilterText(query);
                 } else {
                     station_list.clearTextFilter();
                 }
-            }
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                searchAdapter.getFilter().filter(s.toString()); // 검색어를 입력해도 결과가 안 나와서 강제로 메소드를 실행시켜줌
+                searchView.clearFocus(); // 검색 버튼 클릭 시 키보드 내려가게 하기
+                return true;
             }
-        }) ;
+            //텍스트가 바뀔때마다 호출
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                searchAdapter.getFilter().filter(newText);
+                return true;
+            }
+        });
+        return true;
     }
 
-     private void getXmlData(){ // 꼭 네트워크 연결 후 사용(안 하면 안 나옴)
+    private void getXmlData(){ // 꼭 네트워크 연결 후 사용(안 하면 안 나옴)
 
         boolean inCD = false, inNAME = false, inNUM = false, inFR = false;
         String station_code = null, station_nm= null, line_num = null, fr_code = null;

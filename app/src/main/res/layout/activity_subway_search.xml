@@ -17,18 +17,11 @@
 
     </androidx.appcompat.widget.Toolbar>
 
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/toolbar"
-        android:id="@+id/station_search"
-        />
-
     <ListView
         android:id="@+id/station_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/station_search"
+        android:layout_below="@+id/toolbar"
         >
     </ListView>
 

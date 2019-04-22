@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
@@ -41,17 +42,24 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
             convertView = inflater.inflate(R.layout.activity_subway_list, parent, false);
         }
 
+        CheckBox favorite_star = (CheckBox) convertView.findViewById(R.id.unfilled_star);
         TextView st_code = (TextView) convertView.findViewById(R.id.station_code);
         TextView st_name = (TextView) convertView.findViewById(R.id.station_name);
         TextView st_line = (TextView) convertView.findViewById(R.id.station_line);
-        TextView st_frcode = (TextView) convertView.findViewById(R.id.station_fr_code);
+        //TextView st_frcode = (TextView) convertView.findViewById(R.id.station_fr_code);
 
+        favorite_star.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
         SubwayItem items = filtered_items.get(position);
 
         st_code.setText(items.getSubway_code());
         st_name.setText(items.getSubway_name());
         st_line.setText(items.getLine());
-        st_frcode.setText(items.getFr_code());
+        //st_frcode.setText(items.getFr_code());
 
         return convertView;
     }
