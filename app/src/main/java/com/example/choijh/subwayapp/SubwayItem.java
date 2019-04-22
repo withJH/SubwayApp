@@ -23,13 +23,7 @@ public class SubwayItem {
         this.subway_name = name;
     }
 
-    public String getLine() {
-        return line;
-    }
 
-    public void setLine(String line) {
-        this.line = line;
-    }
 
     public String getFr_code() {
         return fr_code;
@@ -39,5 +33,14 @@ public class SubwayItem {
         this.fr_code = code;
     }
 
+
+    public String getLine() {
+        return line;
+    }
+
+    public void setLine(String line) {
+        System.out.println(line);
+        this.line = line;
+    }
 
 }
