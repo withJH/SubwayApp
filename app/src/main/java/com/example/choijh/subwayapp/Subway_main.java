@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.caverock.androidsvg.SVG;
@@ -29,6 +30,10 @@ import com.kakao.network.callback.ResponseCallback;
 import com.kakao.network.*;
 import com.kakao.util.helper.log.Logger;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserFactory;
+
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -107,7 +112,63 @@ public class Subway_main extends AppCompatActivity
         }
         photoView.setOnPhotoTapListener(new PhotoTapListener());
 
-//        ((ScalableSVGImageView) findViewById(R.id.imageView1)).internalSetImageAsset("svg_seoul_subway_linemap.svg");
+        new Thread(){
+            @Override
+            public void run(){
+                TextView arrivalTime = (TextView) findViewById(R.id.arrival_time); //파싱된 결과확인! 이것은 파싱한 것이 나올 부분
+                boolean initem = false, inbstatnNm = false, inarvlMsg2 = false, incode = false, inmessage = false;
+                String bstatnNm = null, arvlMsg2 = null, code = null, message = null;
+                        try {
+                    URL url = new URL("http://swopenapi.seoul.go.kr/api/subway/684a69417161726133346d716f4771/xml/realtimeStationArrival/0/10/병점"
+                    ); //※만든 URL 넣기
+                    XmlPullParserFactory parserCreator = XmlPullParserFactory.newInstance();
+                    XmlPullParser parser = parserCreator.newPullParser();
+                    parser.setInput(url.openStream(), null);
+                    int parserEvent = parser.getEventType();
+                    System.out.println("파싱시작합니다.");
+                    while (parserEvent != XmlPullParser.END_DOCUMENT) {
+                        switch (parserEvent) {
+                            case XmlPullParser.START_TAG://parser가 시작 태그를 만나면 실행
+                                if (parser.getName().equals("bstatnNm")) { // 종착지하철역명 만나면 내용을 받을수 있게 하자
+                                    inbstatnNm = true;
+                                }
+                                if (parser.getName().equals("arvlMsg2")) { // 첫번째도착메세지행 만나면 내용을 받을수 있게 하자
+                                    inarvlMsg2 = true;
+                                }
+                                break;
+                            case XmlPullParser.TEXT://parser가 내용에 접근했을때
+                                if (inbstatnNm) { //inbstatnNm이 true일 때 태그의 내용을 저장.
+                                    bstatnNm = parser.getText();
+                                    inbstatnNm = false;
+                                }
+                                if (inarvlMsg2) { //inarvlMsg2이 true일 때 태그의 내용을 저장.
+                                    arvlMsg2 = parser.getText();
+                                    inarvlMsg2 = false;
+                                }
+                                break;
+                            case XmlPullParser.END_TAG:
+                                if (parser.getName().equals("bstatnNm")) {
+                                    arrivalTime.setText(arrivalTime.getText() + bstatnNm + "행\n");
+                                }
+                                if (parser.getName().equals("arvlMsg2")) {
+                                    arrivalTime.setText(arrivalTime.getText() + arvlMsg2 + "\n");
+                                }
+                                if (parser.getName().equals("item")) {
+                                    arrivalTime.setText(arrivalTime.getText() + "\n " + bstatnNm + "행\n" + arvlMsg2 + "\n");
+                                    initem = false;
+                                }
+                                break;
+                        }
+                        parserEvent = parser.next();
+                    }
+                } catch (Exception e) {
+                    arrivalTime.setText("에러가..났습니다...");
+                    e.printStackTrace();
+                }
+
+            }
+        }.start();
+
 
     }
 
