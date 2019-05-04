@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,12 +37,15 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -51,15 +55,24 @@ public class Subway_main extends AppCompatActivity
 
     PhotoView photoView;
     SVG svg;
-    private Toast mCurrentToast;
-    static final String PHOTO_TAP_TOAST_STRING = "Photo Tap! X: %.2f %% Y:%.2f %% ID: %d";
-
+    private Toast mCurrentToast;//포토비유 탭의 임시
+    static final String PHOTO_TAP_TOAST_STRING = "Photo Tap! X: %.2f %% Y:%.2f %% ID: %d";//포토비유 탭의 임시
+    ListView listview ;//커스텀뷰
+    ListViewMainArrivalAdapter adapter;//커스텀뷰
+    String time_now;//현재시간
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_subway_main);
+                           arrival_time();
+        // Adapter 생성//커스텀뷰
+        adapter = new ListViewMainArrivalAdapter() ;//커스텀뷰
 
-
+        // 리스트뷰 참조 및 Adapter달기//커스텀뷰
+        listview = (ListView) findViewById(R.id.listview1);//커스텀뷰
+        time_now = new SimpleDateFormat("HHmm").format(new Date());
+        //draw_svg();
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false); //원래 툴바 타이틀(제목)없애줌
@@ -84,11 +97,10 @@ public class Subway_main extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         //getHashKey();
+
         try {
-            svg = SVG.getFromAsset(this.getAssets(), "svg_seoul_subway_linemap.svg");
+            svg = SVG.getFromAsset(getResources().getAssets(), "svg_seoul_subway_linemap.svg");
             PictureDrawable drawable = new PictureDrawable(svg.renderToPicture());
-
-
             photoView = findViewById(R.id.sub_map);
 
             photoView.setImageDrawable(drawable);
@@ -111,74 +123,155 @@ public class Subway_main extends AppCompatActivity
             e.printStackTrace();
         }
         photoView.setOnPhotoTapListener(new PhotoTapListener());
-
+        listview.setAdapter(adapter);//커스텀뷰//살릴것
+    }
+    private void draw_svg(){
         new Thread(){
             @Override
             public void run(){
-                TextView arrivalTime = (TextView) findViewById(R.id.arrival_time); //파싱된 결과확인! 이것은 파싱한 것이 나올 부분
-                boolean initem = false, inbstatnNm = false, inarvlMsg2 = false, incode = false, inmessage = false;
-                String bstatnNm = null, arvlMsg2 = null, code = null, message = null;
-                        try {
-                    URL url = new URL("http://swopenapi.seoul.go.kr/api/subway/684a69417161726133346d716f4771/xml/realtimeStationArrival/0/10/병점"
-                    ); //※만든 URL 넣기
+
+            }
+        }.start();
+
+    }
+    private void arrival_time(){
+        new Thread(){
+            @Override
+            public void run(){
+//                TextView arrivalTime = (TextView) findViewById(R.id.arrival_time); //파싱된 결과확인! 이것은 파싱한 것이 나올 부분
+                boolean inDESTSTATION_NAME = false, inARRIVETIME = false, inSUBWAYNAME = false;
+                String DESTSTATION_NAME = null, ARRIVETIME = null, SUBWAYNAME = null;
+                String statin_up_arrival = null;
+                String statin_dn_arrival = null;
+                String key = "684a69417161726133346d716f4771";
+                String station_code = "1716";//병점
+                String station_up = "1";//상행선
+                String station_dn = "2";//하행선
+                String week_code = "3";
+                String station_time = null;
+                //해야할 일
+                //1. 평일 1, 토요일 2, 공휴일 3 => 오늘 날짜를 보고 평일인지 휴일인지 알게하는 함수 추가 할 것.
+                //2. 새벽시간 차가 없을때 널값으로 줘서 이상한 값이 나오지 않게 할 것
+                //나중에 해야할 일
+                //1. 디비 받아서 호선별 색 이미지 달라지게 다른 색상의 이미지 추가
+                //   호선별로 다른 색으로 바뀌게 하기
+                //2. 출발지 임의로 하지 않고 즐겨찾기에서 코드로 받아서 하기 ex)병점 => 1716
+
+                try {
+//                    URL url = new URL("http://openapi.seoul.go.kr:8088/684a69417161726133346d716f4771/xml/SearchArrivalTimeOfLine2SubwayByIDService/1/5/1716/2/2");
+                    URL url_up = new URL("http://openapi.seoul.go.kr:8088/" + key + "/xml/SearchArrivalTimeOfLine2SubwayByIDService/1/5/"
+                            + station_code + "/" + station_up + "/" + week_code);
+                    URL url_dn = new URL("http://openapi.seoul.go.kr:8088/" + key + "/xml/SearchArrivalTimeOfLine2SubwayByIDService/1/5/"
+                            + station_code + "/" + station_dn + "/" + week_code);
                     XmlPullParserFactory parserCreator = XmlPullParserFactory.newInstance();
                     XmlPullParser parser = parserCreator.newPullParser();
-                    parser.setInput(url.openStream(), null);
+                    parser.setInput(url_up.openStream(), null);
                     int parserEvent = parser.getEventType();
-                    System.out.println("파싱시작합니다.");
+                    System.out.println("상행선 파싱 시작");
                     while (parserEvent != XmlPullParser.END_DOCUMENT) {
                         switch (parserEvent) {
                             case XmlPullParser.START_TAG://parser가 시작 태그를 만나면 실행
-                                if (parser.getName().equals("bstatnNm")) { // 종착지하철역명 만나면 내용을 받을수 있게 하자
-                                    inbstatnNm = true;
-                                }
-                                if (parser.getName().equals("arvlMsg2")) { // 첫번째도착메세지행 만나면 내용을 받을수 있게 하자
-                                    inarvlMsg2 = true;
+                                if (parser.getName().equals("DESTSTATION_NAME")) { // 종착지하철역명 만나면 내용을 받을수 있게 하자
+                                    inDESTSTATION_NAME = true;
+                                }else if (parser.getName().equals("ARRIVETIME")) { // 첫번째도착메세지행 만나면 내용을 받을수 있게 하자
+                                    inARRIVETIME = true;
+                                }else if (parser.getName().equals("SUBWAYNAME")) { // 첫번째도착메세지행 만나면 내용을 받을수 있게 하자
+                                    inSUBWAYNAME = true;
                                 }
                                 break;
-                            case XmlPullParser.TEXT://parser가 내용에 접근했을때
-                                if (inbstatnNm) { //inbstatnNm이 true일 때 태그의 내용을 저장.
-                                    bstatnNm = parser.getText();
-                                    inbstatnNm = false;
-                                }
-                                if (inarvlMsg2) { //inarvlMsg2이 true일 때 태그의 내용을 저장.
-                                    arvlMsg2 = parser.getText();
-                                    inarvlMsg2 = false;
+                            case XmlPullParser.TEXT:
+                                if (inDESTSTATION_NAME) {
+                                    DESTSTATION_NAME = parser.getText();
+                                    inDESTSTATION_NAME = false;
+                                }else if (inARRIVETIME) {
+                                    ARRIVETIME = parser.getText();
+                                    inARRIVETIME = false;
+                                }else if (inSUBWAYNAME) {
+                                    SUBWAYNAME = parser.getText();
+                                    inSUBWAYNAME = false;
                                 }
                                 break;
                             case XmlPullParser.END_TAG:
-                                if (parser.getName().equals("bstatnNm")) {
-                                    arrivalTime.setText(arrivalTime.getText() + bstatnNm + "행\n");
-                                }
-                                if (parser.getName().equals("arvlMsg2")) {
-                                    arrivalTime.setText(arrivalTime.getText() + arvlMsg2 + "\n");
-                                }
-                                if (parser.getName().equals("item")) {
-                                    arrivalTime.setText(arrivalTime.getText() + "\n " + bstatnNm + "행\n" + arvlMsg2 + "\n");
-                                    initem = false;
+                                if ("row".equals(parser.getName())) {
+                                    station_time = ARRIVETIME.substring(0,2) + ARRIVETIME.substring(3,5);// 시간 형식 변환 hh:mm:ss=>hhmm
+                                    int arrival_times = Integer.parseInt(station_time) - Integer.parseInt(time_now);
+                                    if(Integer.parseInt(ARRIVETIME.substring(1,2)) - Integer.parseInt(time_now.substring(1,2)) == 1)// 시가 넘어갈 때 40이상 되는거 변화
+                                        arrival_times = 40;
+                                    if (statin_up_arrival == null){
+                                        statin_up_arrival = DESTSTATION_NAME + "행 " + arrival_times + "분 후\n"
+                                        + ARRIVETIME + "\n";
+                                    } else if(arrival_times == 0){
+                                        statin_up_arrival = DESTSTATION_NAME + "행 " + "도착\n"
+                                                + ARRIVETIME+ "\n";
+                                    } else {
+                                        statin_up_arrival = statin_up_arrival + DESTSTATION_NAME + "행 " + arrival_times + "분 후\n"
+                                                + ARRIVETIME+ "\n";
+                                    }
                                 }
                                 break;
                         }
                         parserEvent = parser.next();
                     }
+
+                    parser.setInput(url_dn.openStream(), null);
+                    parserEvent = parser.getEventType();
+                    System.out.println("하행선 파싱 시작");
+                    while (parserEvent != XmlPullParser.END_DOCUMENT) {
+                        switch (parserEvent) {
+                            case XmlPullParser.START_TAG:
+                                if (parser.getName().equals("DESTSTATION_NAME")) {
+                                    inDESTSTATION_NAME = true;
+                                    System.out.println("여기는 진행되었음");
+                                }else if (parser.getName().equals("ARRIVETIME")) {
+                                    inARRIVETIME = true;
+                                }
+                                break;
+                            case XmlPullParser.TEXT://parser가 내용에 접근했을때
+                                if (inDESTSTATION_NAME) { //inbstatnNm이 true일 때 태그의 내용을 저장.
+                                    DESTSTATION_NAME = parser.getText();
+                                    inDESTSTATION_NAME = false;
+                                }else if (inARRIVETIME) { //inarvlMsg2이 true일 때 태그의 내용을 저장.
+                                    ARRIVETIME = parser.getText();
+                                    inARRIVETIME = false;
+                                }
+                                break;
+                            case XmlPullParser.END_TAG:
+                                if ("row".equals(parser.getName())) {
+                                    station_time = ARRIVETIME.substring(0,2) + ARRIVETIME.substring(3,5);
+                                    int arrival_times = Integer.parseInt(station_time) - Integer.parseInt(time_now);
+                                    if(Integer.parseInt(ARRIVETIME.substring(1,2)) - Integer.parseInt(time_now.substring(1,2)) == 1)
+                                        arrival_times = 40;
+                                    if (arrival_times == 0){
+                                        statin_dn_arrival = DESTSTATION_NAME + "행 " + arrival_times + "분 후\n"
+                                                + ARRIVETIME + "\n";
+                                    } else if(statin_dn_arrival == null){
+                                        statin_dn_arrival = DESTSTATION_NAME + "행 " + "도착\n"
+                                                + ARRIVETIME+ "\n";
+                                    } else {
+                                        statin_dn_arrival = statin_dn_arrival + DESTSTATION_NAME + "행 " + arrival_times + "분 후\n"
+                                                + ARRIVETIME+ "\n";
+                                    }
+                                }
+                                break;
+                        }
+                        parserEvent = parser.next();
+                    }//하행선 파싱 끝
+
+//                    arrivalTime.setText(arrivalTime.getText() + station_time );
+                    adapter.addItem(SUBWAYNAME,statin_up_arrival, statin_dn_arrival) ;
                 } catch (Exception e) {
-                    arrivalTime.setText("에러가..났습니다...");
+//                    arrivalTime.setText("에러가..났습니다...");
                     e.printStackTrace();
                 }
-
             }
         }.start();
-
-
-    }
-
-    private void transition(View view) {
-
+    };
+    private void moevTofullScreen(View view) {
         Intent intent = new Intent(Subway_main.this, Subway_fullScreen.class);
         startActivity(intent);
     }
 
-    private class PhotoTapListener implements OnPhotoTapListener {
+    private class PhotoTapListener implements OnPhotoTapListener {//탭
 
         @Override
         public void onPhotoTap(ImageView view, float x, float y) {
@@ -186,7 +279,7 @@ public class Subway_main extends AppCompatActivity
             float yPercentage = y * 100f;
 
 //            showToast(String.format(PHOTO_TAP_TOAST_STRING, xPercentage, yPercentage, view == null ? 0 : view.getId()));
-            transition(view);
+            moevTofullScreen(view);
         }
     }
 
@@ -194,7 +287,6 @@ public class Subway_main extends AppCompatActivity
         if (mCurrentToast != null) {
             mCurrentToast.cancel();
         }
-
         mCurrentToast = Toast.makeText(Subway_main.this, text, Toast.LENGTH_SHORT);
         mCurrentToast.show();
     }

@@ -15,6 +15,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".ListViewMainArrival"></activity>
+        <activity android:name=".listview_item" />
+        <activity android:name=".listadapter" />
+        <activity android:name=".ListViewItem" />
         <activity android:name=".Bus_lost_property" />
         <activity android:name=".Subway_fullScreen" />
         <activity android:name=".Subway_route" />
@@ -24,7 +28,6 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".Subway_lost_property" />
         <activity android:name=".common_setting" />
-
         <activity
             android:name=".SplashActivity"
             android:theme="@style/SplashTheme">
@@ -34,7 +37,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".Subway_main"
             android:label="오즈"
