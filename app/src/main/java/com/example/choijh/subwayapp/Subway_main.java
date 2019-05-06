@@ -57,8 +57,8 @@ public class Subway_main extends AppCompatActivity
     SVG svg;
     private Toast mCurrentToast;//포토비유 탭의 임시
     static final String PHOTO_TAP_TOAST_STRING = "Photo Tap! X: %.2f %% Y:%.2f %% ID: %d";//포토비유 탭의 임시
-    ListView listview ;//커스텀뷰
-    ListViewMainArrivalAdapter adapter;//커스텀뷰
+//    ListView listview ;//커스텀뷰
+//    ListViewMainArrivalAdapter adapter;//커스텀뷰
     String time_now;//현재시간
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,10 +67,10 @@ public class Subway_main extends AppCompatActivity
         setContentView(R.layout.activity_subway_main);
                            arrival_time();
         // Adapter 생성//커스텀뷰
-        adapter = new ListViewMainArrivalAdapter() ;//커스텀뷰
+//        adapter = new ListViewMainArrivalAdapter() ;//커스텀뷰
 
         // 리스트뷰 참조 및 Adapter달기//커스텀뷰
-        listview = (ListView) findViewById(R.id.listview1);//커스텀뷰
+//        listview = (ListView) findViewById(R.id.listview1);//커스텀뷰
         time_now = new SimpleDateFormat("HHmm").format(new Date());
         //draw_svg();
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -123,7 +123,7 @@ public class Subway_main extends AppCompatActivity
             e.printStackTrace();
         }
         photoView.setOnPhotoTapListener(new PhotoTapListener());
-        listview.setAdapter(adapter);//커스텀뷰//살릴것
+//        listview.setAdapter(adapter);//커스텀뷰//살릴것
     }
     private void draw_svg(){
         new Thread(){
@@ -138,7 +138,7 @@ public class Subway_main extends AppCompatActivity
         new Thread(){
             @Override
             public void run(){
-//                TextView arrivalTime = (TextView) findViewById(R.id.arrival_time); //파싱된 결과확인! 이것은 파싱한 것이 나올 부분
+                TextView arrivalTime = (TextView) findViewById(R.id.arrival_time); //파싱된 결과확인! 이것은 파싱한 것이 나올 부분
                 boolean inDESTSTATION_NAME = false, inARRIVETIME = false, inSUBWAYNAME = false;
                 String DESTSTATION_NAME = null, ARRIVETIME = null, SUBWAYNAME = null;
                 String statin_up_arrival = null;
@@ -257,8 +257,8 @@ public class Subway_main extends AppCompatActivity
                         parserEvent = parser.next();
                     }//하행선 파싱 끝
 
-//                    arrivalTime.setText(arrivalTime.getText() + station_time );
-                    adapter.addItem(SUBWAYNAME,statin_up_arrival, statin_dn_arrival) ;
+                    arrivalTime.setText(arrivalTime.getText() + station_time );
+//                    adapter.addItem(SUBWAYNAME,statin_up_arrival, statin_dn_arrival) ;//커스텀뷰
                 } catch (Exception e) {
 //                    arrivalTime.setText("에러가..났습니다...");
                     e.printStackTrace();
