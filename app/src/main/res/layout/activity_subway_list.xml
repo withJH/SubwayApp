@@ -12,6 +12,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:id="@+id/unfilled_star"
+            android:layout_margin="5dp"
             android:button="@drawable/checked_favorite"/>
 
         <LinearLayout
@@ -21,7 +22,7 @@
 
             <TextView
                 android:id="@+id/station_name"
-                android:textSize="25dp"
+                android:textSize="15dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 />
@@ -37,8 +38,8 @@
             android:id="@+id/station_line"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="10dp"
             android:scaleType="fitEnd"/>
 
     </LinearLayout>
-
 </LinearLayout>

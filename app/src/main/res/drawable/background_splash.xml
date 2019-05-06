@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@android:color/white" />
+    <item android:drawable="@android:color/white"
+           android:height="10dp"
+            android:width="10dp"/>
     <item>
-        <bitmap android:src="@drawable/launch_icon"
-            android:gravity="center" />
+        <bitmap android:src="@drawable/loading"
+            android:gravity="center"/>
     </item>
 </layer-list>
