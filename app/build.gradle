@@ -39,4 +39,5 @@ dependencies {
     implementation group: 'com.kakao.sdk', name: 'kakaotalk', version: project.KAKAO_SDK_VERSION
     implementation group: 'com.kakao.sdk', name: 'kakaostory', version: project.KAKAO_SDK_VERSION
     implementation group: 'com.kakao.sdk', name: 'push', version: project.KAKAO_SDK_VERSION
+    debugImplementation 'com.amitshekhar.android:debug-db:1.0.6'
 }

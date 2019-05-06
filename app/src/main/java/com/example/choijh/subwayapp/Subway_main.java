@@ -6,7 +6,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.graphics.drawable.PictureDrawable;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
@@ -14,15 +13,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amitshekhar.DebugDB;
 import com.caverock.androidsvg.SVG;
 import com.github.chrisbanes.photoview.OnPhotoTapListener;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
-//import com.kakao.kakaolink.internal.LinkObject;
 import com.kakao.message.template.LinkObject;
 import com.kakao.kakaolink.v2.KakaoLinkResponse;
 import com.kakao.kakaolink.v2.KakaoLinkService;
@@ -45,7 +43,6 @@ import java.util.Map;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -57,9 +54,10 @@ public class Subway_main extends AppCompatActivity
     SVG svg;
     private Toast mCurrentToast;//포토비유 탭의 임시
     static final String PHOTO_TAP_TOAST_STRING = "Photo Tap! X: %.2f %% Y:%.2f %% ID: %d";//포토비유 탭의 임시
-//    ListView listview ;//커스텀뷰
-//    ListViewMainArrivalAdapter adapter;//커스텀뷰
+    ListView listview ;//커스텀뷰
+    ListViewMainArrivalAdapter adapter;//커스텀뷰
     String time_now;//현재시간
+    DBOpenHelper help;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -67,10 +65,10 @@ public class Subway_main extends AppCompatActivity
         setContentView(R.layout.activity_subway_main);
                            arrival_time();
         // Adapter 생성//커스텀뷰
-//        adapter = new ListViewMainArrivalAdapter() ;//커스텀뷰
+        adapter = new ListViewMainArrivalAdapter() ;//커스텀뷰
 
         // 리스트뷰 참조 및 Adapter달기//커스텀뷰
-//        listview = (ListView) findViewById(R.id.listview1);//커스텀뷰
+        //listview = (ListView) findViewById(R.id.listview1);//커스텀뷰
         time_now = new SimpleDateFormat("HHmm").format(new Date());
         //draw_svg();
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -97,6 +95,8 @@ public class Subway_main extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         //getHashKey();
+        getInfoFromAPI();
+        DebugDB.getAddressLog();
 
         try {
             svg = SVG.getFromAsset(getResources().getAssets(), "svg_seoul_subway_linemap.svg");
@@ -134,11 +134,12 @@ public class Subway_main extends AppCompatActivity
         }.start();
 
     }
+
     private void arrival_time(){
         new Thread(){
             @Override
             public void run(){
-                TextView arrivalTime = (TextView) findViewById(R.id.arrival_time); //파싱된 결과확인! 이것은 파싱한 것이 나올 부분
+//                TextView arrivalTime = (TextView) findViewById(R.id.arrival_time); //파싱된 결과확인! 이것은 파싱한 것이 나올 부분
                 boolean inDESTSTATION_NAME = false, inARRIVETIME = false, inSUBWAYNAME = false;
                 String DESTSTATION_NAME = null, ARRIVETIME = null, SUBWAYNAME = null;
                 String statin_up_arrival = null;
@@ -257,8 +258,8 @@ public class Subway_main extends AppCompatActivity
                         parserEvent = parser.next();
                     }//하행선 파싱 끝
 
-                    arrivalTime.setText(arrivalTime.getText() + station_time );
-//                    adapter.addItem(SUBWAYNAME,statin_up_arrival, statin_dn_arrival) ;//커스텀뷰
+//                    arrivalTime.setText(arrivalTime.getText() + station_time );
+                    adapter.addItem(SUBWAYNAME,statin_up_arrival, statin_dn_arrival) ;
                 } catch (Exception e) {
 //                    arrivalTime.setText("에러가..났습니다...");
                     e.printStackTrace();
@@ -398,6 +399,92 @@ public class Subway_main extends AppCompatActivity
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+
+    private void getInfoFromAPI() { // 꼭 네트워크 연결 후 사용(안 하면 안 나옴)
+
+        help = new DBOpenHelper(getApplicationContext());
+        help.open();
+        help.create();
+
+        if(!help.confirmTable()) {
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+
+                        String key = "7a6c6556566a686338384f56675879"; // 지하철역 이름으로 검색 인증키
+
+                        boolean inCD = false, inNAME = false, inNUM = false, inFR = false;
+                        String station_code = null, station_nm = null, line_num = null, fr_code = null;
+
+                        URL url = new URL("http://openapi.seoul.go.kr:8088/" + key
+                                + "/xml/SearchInfoBySubwayNameService/1/716"); //검색 URL
+
+                        XmlPullParserFactory parserCreator = XmlPullParserFactory.newInstance();
+                        XmlPullParser parser = parserCreator.newPullParser();
+
+                        parser.setInput(url.openStream(), null);
+
+                        int parserEvent = parser.getEventType();
+                        System.out.println("지하철역 이름을 통한 검색 API 파싱 중...");
+
+                        while (parserEvent != XmlPullParser.END_DOCUMENT) {
+                            switch (parserEvent) {
+                                case XmlPullParser.START_TAG: //parser가 시작 태그를 만나면 실행 ex) <ul>
+                                    if (parser.getName().equals("STATION_CD")) {
+                                        inCD = true;
+                                        break;
+                                    } else if (parser.getName().equals("STATION_NM")) {
+                                        inNAME = true;
+                                        break;
+                                    } else if (parser.getName().equals("LINE_NUM")) {
+                                        inNUM = true;
+                                        break;
+                                    } else if (parser.getName().equals("FR_CODE")) {
+                                        inFR = true;
+                                        break;
+                                    } else {
+                                        break;
+                                    }
+                                case XmlPullParser.TEXT: //parser가 내용에 접근했을때
+                                    if (inCD) {
+                                        station_code = parser.getText();
+                                        inCD = false;
+                                        break;
+                                    } else if (inNAME) {
+                                        station_nm = parser.getText();
+                                        inNAME = false;
+                                        break;
+                                    } else if (inNUM) {
+                                        line_num = parser.getText();
+                                        inNUM = false;
+                                        break;
+                                    } else if (inFR) {
+                                        fr_code = parser.getText();
+                                        inFR = false;
+                                        break;
+                                    } else {
+                                        break;
+                                    }
+                                case XmlPullParser.END_TAG: //parser가 종료태그 만났을 때 ex) </ul>
+                                    if (parser.getName().equals("row")) {
+                                        //searchAdapter.addItem(station_code, station_nm, line_num, fr_code); // 어댑터에 데이터 삽입
+                                        help.insertColumn(station_code, station_nm, line_num, fr_code);
+                                    }
+                                    break;
+                            }
+                            parserEvent = parser.next();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    help.close();
+                }
+            }.start();
+        }
+
     }
 
     // kakao 키 해시값 받아오기(하단 Logcat부분에 KeyHash 검색

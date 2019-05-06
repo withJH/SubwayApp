@@ -1,0 +1,77 @@
+package com.example.choijh.subwayapp;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
+public class DBOpenHelper {
+
+    private static final String DATABASE_NAME = "Subway_App.db";
+    private static final int DATABASE_VERSION = 1;
+    public static SQLiteDatabase mDB;
+    private DatabaseHelper mDBHelper;
+    private Context mContext;
+
+    private class DatabaseHelper extends SQLiteOpenHelper {
+
+        public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
+            super(context, name, factory, version);
+        }
+
+        @Override
+        public void onCreate(SQLiteDatabase db){
+            db.execSQL(DataBases.StationCreateDB._CREATE);
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion){
+            db.execSQL("DROP TABLE IF EXISTS "+ DataBases.StationCreateDB._TABLENAME);
+            onCreate(db);
+        }
+    }
+
+    public DBOpenHelper(Context context){
+        this.mContext = context;
+    } // 생성자
+
+    public DBOpenHelper open() throws SQLException {
+        mDBHelper = new DatabaseHelper(mContext, DATABASE_NAME, null, DATABASE_VERSION);
+        mDB = mDBHelper.getWritableDatabase();
+        return this;
+    }
+
+    public void create(){
+        mDBHelper.onCreate(mDB);
+    }
+
+    public void close(){
+        mDB.close();
+    }
+
+    public long insertColumn(String station_code, String station_name, String station_line , String station_fr){ // 데이터 삽입
+        ContentValues values = new ContentValues();
+        values.put(DataBases.StationCreateDB.CODE, station_code);
+        values.put(DataBases.StationCreateDB.NAME, station_name);
+        values.put(DataBases.StationCreateDB.LINE, station_line);
+        values.put(DataBases.StationCreateDB.FR, station_fr);
+        return mDB.insert(DataBases.StationCreateDB._TABLENAME, null, values);
+    }
+
+    public Cursor selectColumns(){ // 데이터 검색 (자세한 사용법은 Subway_search.java 파일에서 사용)
+        return mDB.query(DataBases.StationCreateDB._TABLENAME, null, null, null, null, null, null);
+    }
+
+    public boolean confirmTable(){ // 테이블 유무 확인
+        Cursor cursor = mDB.rawQuery("SELECT * FROM 'Station_info'", null);
+        cursor.moveToFirst();
+
+        if(cursor.getCount()>0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+}
