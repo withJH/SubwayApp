@@ -11,19 +11,90 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_margin="20dp">
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="100dp"
-            android:layout_margin="20dp"
-            android:text="버스정류장"/>
+            android:orientation="vertical"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="40dp"
+            android:background="#ffffff">
+
+            <androidx.viewpager.widget.ViewPager
+                android:id="@+id/vpPager"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"/>
+            <me.relex.circleindicator.CircleIndicator
+                android:id="@+id/indicator"
+                app:ci_drawable="@drawable/black_radius"
+                app:ci_height="5dp"
+                app:ci_width="5dp"
+                app:ci_margin="4dp"
+                android:layout_width="match_parent"
+                android:layout_height="10dp"/>
+        </LinearLayout>
+
         <LinearLayout
             android:id="@+id/map_view"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="250dp"
             android:orientation="vertical"
-            android:layout_margin="20dp"/>
+            android:layout_marginBottom="25dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_gravity="center"
+            android:layout_marginLeft="2dp">
+            <ImageButton
+                android:id="@+id/cafe"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/buttonshape"
+                android:padding="15dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/cafe"
+                android:layout_marginRight="15dp"/>
+            <ImageButton
+                android:id="@+id/restaurant"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/buttonshape"
+                android:padding="15dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/restaurant"
+                android:layout_marginRight="15dp" />
+            <ImageButton
+                android:id="@+id/hospital"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/buttonshape"
+                android:padding="15dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/hospital"
+                android:layout_marginRight="15dp"/>
+            <ImageButton
+                android:id="@+id/bank"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/buttonshape"
+                android:padding="15dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/bank"
+                android:layout_marginRight="15dp"/>
+            <ImageButton
+                android:id="@+id/hotel"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/buttonshape"
+                android:padding="15dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/bed" />
+        </LinearLayout>
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -87,13 +87,13 @@ public class Bus_lost_property extends AppCompatActivity implements ListViewBtnA
 
         // 아이템 생성.
         item = new ListViewBtnItem_lost() ;
-        item.setText(" 즐겨찾기 초기화") ;
-        item.setText2("010-1934-872");
+        item.setText(" 강남버스터미널") ;
+        item.setText2("02-1934-872");
         list.add(item) ;
 
         item = new ListViewBtnItem_lost() ;
-        item.setText(" 문의하기") ;
-        item.setText2("010-3240-1234");
+        item.setText(" 수원버스터미널") ;
+        item.setText2("031-3240-1234");
         list.add(item) ;
 
         return true ;

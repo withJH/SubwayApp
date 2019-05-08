@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="20dp"
+            android:layout_marginTop="0dp"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/buttonshape"
+                android:padding="15dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/cafe"
+                android:layout_marginRight="30dp"/>
+            <ImageButton
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/buttonshape"
+                android:padding="15dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/restaurant"
+                android:layout_marginRight="30dp" />
+            <ImageButton
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/buttonshape"
+                android:padding="15dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/hospital"
+                android:layout_marginRight="30dp"/>
+            <ImageButton
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/buttonshape"
+                android:padding="15dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/bank"
+                android:layout_marginRight="30dp"/>
+            <ImageButton
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/buttonshape"
+                android:padding="15dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/bed" />
+        </LinearLayout>
+
+    </LinearLayout>
+
