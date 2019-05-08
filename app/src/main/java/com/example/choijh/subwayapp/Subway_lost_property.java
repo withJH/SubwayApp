@@ -89,15 +89,29 @@ public class Subway_lost_property extends AppCompatActivity implements ListViewB
 
         // 아이템 생성.
         item = new ListViewBtnItem_lost() ;
-        item.setText(" 즐겨찾기 초기화") ;
-        item.setText2("010-1934-872");
+        item.setText(" 강남역") ;
+        item.setText2("02-1934-872");
         list.add(item) ;
 
         item = new ListViewBtnItem_lost() ;
-        item.setText(" 문의하기") ;
-        item.setText2("010-3240-1234");
+        item.setText(" 교원역") ;
+        item.setText2("031-3240-1234");
         list.add(item) ;
 
+        item = new ListViewBtnItem_lost() ;
+        item.setText(" 사당역") ;
+        item.setText2("02-240-1234");
+        list.add(item) ;
+        item = new ListViewBtnItem_lost() ;
+        item.setText(" 수원역") ;
+        item.setText2("031-250-1224");
+        list.add(item) ;item = new ListViewBtnItem_lost() ;
+        item.setText(" 세마역") ;
+        item.setText2("031-253-1454");
+        list.add(item) ;item = new ListViewBtnItem_lost() ;
+        item.setText(" 하남역") ;
+        item.setText2("032-3230-1334");
+        list.add(item) ;
         return true ;
     }
 /*
