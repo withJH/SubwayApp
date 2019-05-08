@@ -394,6 +394,10 @@ public class Subway_main extends AppCompatActivity
             //임시! 지하철 경로
             Intent intent = new Intent(Subway_main.this, Subway_route.class);
             startActivityForResult(intent, 1000);
+        } else if (id == R.id.nav_detail) {
+            //임시! 지하철 상세페이지
+            Intent intent = new Intent(Subway_main.this, Subway_detailPage.class);
+            startActivityForResult(intent, 1000);
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);

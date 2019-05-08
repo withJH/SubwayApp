@@ -36,6 +36,10 @@
                 android:id="@+id/nav_route"
                 android:icon="@drawable/ic_menu_send"
                 android:title="임시:지하철 경로" />
+            <item
+                android:id="@+id/nav_detail"
+                android:icon="@drawable/ic_menu_send"
+                android:title="임시:지하철 상세페이지" />
         </menu>
     </item>
 

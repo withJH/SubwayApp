@@ -77,6 +77,10 @@
             android:name=".Subway_search"
             android:label="@string/title_activity_subway_search"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Subway_detailPage"
+            android:label="Subway_detailPage"/>
+
     </application>
 
 </manifest>
