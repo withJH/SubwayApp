@@ -67,7 +67,7 @@ public class Bus_main extends AppCompatActivity
         // 지도 띄워주는 부분
         MapView mapView = new MapView(this);
 
-        ViewGroup mapViewContainer = findViewById(R.id.map_view);
+        ViewGroup mapViewContainer = findViewById(R.id.map_view1);
         mapViewContainer.addView(mapView);
 
         //뷰페이저 부분
@@ -304,7 +304,6 @@ public class Bus_main extends AppCompatActivity
                     Toast.makeText(getContext(), "서버와 연결 되었으나 실패", Toast.LENGTH_SHORT).show();
                 }
 
-
             }
 
             @Override
@@ -312,4 +311,10 @@ public class Bus_main extends AppCompatActivity
                 Toast.makeText(getContext(), "실패", Toast.LENGTH_SHORT).show();
             }
         });*/
+
+    //버스맵 풀화면으로 이동
+    public void busFullMove(View v){
+        Intent intent = new Intent(Bus_main.this, BusMapFull.class);
+        startActivityForResult(intent, 1000);
+    }
 }

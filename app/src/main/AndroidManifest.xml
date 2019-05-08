@@ -15,8 +15,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".ListViewMainArrival"/>
-        <activity android:name=".Bus_nearby"></activity>
+        <activity android:name=".BusMapFull"></activity>
+        <activity android:name=".ListViewMainArrival" />
+        <activity android:name=".Bus_nearby" />
         <activity android:name=".Bus_lost_property" />
         <activity android:name=".Subway_fullScreen" />
         <activity android:name=".Subway_route" />
