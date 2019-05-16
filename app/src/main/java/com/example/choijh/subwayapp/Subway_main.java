@@ -235,7 +235,7 @@ public class Subway_main extends AppCompatActivity
                                     station_time = ARRIVETIME.substring(0,2) + ARRIVETIME.substring(3,5);// 시간 형식 변환 hh:mm:ss=>hhmm
                                     int arrival_times = Integer.parseInt(station_time) - Integer.parseInt(time_now);
                                     if(Integer.parseInt(ARRIVETIME.substring(1,2)) - Integer.parseInt(time_now.substring(1,2)) == 1)// 시가 넘어갈 때 40이상 되는거 변화
-                                        arrival_times = 40;
+                                        arrival_times -= 40;
                                     if (station_up_name == null){
                                         station_up_name = "";
                                         station_up_time = "";
@@ -287,7 +287,7 @@ public class Subway_main extends AppCompatActivity
                                     station_time = ARRIVETIME.substring(0,2) + ARRIVETIME.substring(3,5);
                                     int arrival_times = Integer.parseInt(station_time) - Integer.parseInt(time_now);
                                     if(Integer.parseInt(ARRIVETIME.substring(1,2)) - Integer.parseInt(time_now.substring(1,2)) == 1)
-                                        arrival_times = 40;
+                                        arrival_times -= 40;
                                     if (station_dn_name == null){
                                         station_dn_name = "";
                                         station_dn_time = "";
