@@ -42,6 +42,7 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -74,12 +75,14 @@ public class Subway_main extends AppCompatActivity
     static String station_up_time = null;
     static String station_dn_name = null;
     static String station_dn_time = null;
+    private String week_code = null;
     //    TextView ari;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_subway_main);
+        week();
         arrival_time();
 //        ari = (TextView) findViewById(R.id.arrival_time);
         // Adapter 생성//커스텀뷰
@@ -159,6 +162,24 @@ public class Subway_main extends AppCompatActivity
 
         System.out.println("onCreate 종료");
     }
+    private void week(){
+        Calendar cal= Calendar.getInstance ( );
+        int day_of_week = cal.get ( Calendar.DAY_OF_WEEK );
+        if ( day_of_week == 1 )//일요일
+            week_code = "3";
+        else if ( day_of_week == 2 )//월요일
+            week_code = "1";
+        else if ( day_of_week == 3 )//화요일
+            week_code = "1";
+        else if ( day_of_week == 4 )//수요일
+            week_code = "1";
+        else if ( day_of_week == 5 )//목요일
+            week_code = "1";
+        else if ( day_of_week == 6 )//금요일
+            week_code = "1";
+        else if ( day_of_week == 7 )//토요일
+            week_code = "2";
+    }
     private void draw_svg(){
         new Thread(){
             @Override
@@ -174,15 +195,15 @@ public class Subway_main extends AppCompatActivity
             @Override
             public void run(){
 //                TextView arrivalTime = (TextView) findViewById(R.id.arrival_time); //파싱된 결과확인! 이것은 파싱한 것이 나올 부분
-                boolean inDESTSTATION_NAME = false, inARRIVETIME = false, inSUBWAYNAME = false;
-                String DESTSTATION_NAME = null, ARRIVETIME = null, SUBWAYNAME = null;
+                boolean inDESTSTATION_NAME = false, inLEFTTME = false, inSUBWAYNAME = false;
+                String DESTSTATION_NAME = null, LEFTTME = null, SUBWAYNAME = null;
                 String statin_up_arrival = null;
                 String statin_dn_arrival = null;
                 String key = "684a69417161726133346d716f4771";
                 String station_code = "1716";//병점
                 String station_up = "1";//상행선
                 String station_dn = "2";//하행선
-                String week_code = "1";
+//                String week_code = "1";
                 String station_time = null;
                 //해야할 일
                 //1. 평일 1, 토요일 2, 공휴일 3 => 오늘 날짜를 보고 평일인지 휴일인지 알게하는 함수 추가 할 것.
@@ -209,8 +230,8 @@ public class Subway_main extends AppCompatActivity
                             case XmlPullParser.START_TAG://parser가 시작 태그를 만나면 실행
                                 if (parser.getName().equals("DESTSTATION_NAME")) { // 종착지하철역명 만나면 내용을 받을수 있게 하자
                                     inDESTSTATION_NAME = true;
-                                }else if (parser.getName().equals("ARRIVETIME")) { // 첫번째도착메세지행 만나면 내용을 받을수 있게 하자
-                                    inARRIVETIME = true;
+                                }else if (parser.getName().equals("LEFTTME")) { // 첫번째도착메세지행 만나면 내용을 받을수 있게 하자
+                                    inLEFTTME = true;
                                 }else if (parser.getName().equals("SUBWAYNAME")) { // 첫번째도착메세지행 만나면 내용을 받을수 있게 하자
                                     inSUBWAYNAME = true;
                                 }
@@ -219,9 +240,9 @@ public class Subway_main extends AppCompatActivity
                                 if (inDESTSTATION_NAME) {
                                     DESTSTATION_NAME = parser.getText();
                                     inDESTSTATION_NAME = false;
-                                }else if (inARRIVETIME) {
-                                    ARRIVETIME = parser.getText();
-                                    inARRIVETIME = false;
+                                }else if (inLEFTTME) {
+                                    LEFTTME = parser.getText();
+                                    inLEFTTME = false;
                                 }else if (inSUBWAYNAME) {
                                     SUBWAYNAME = parser.getText();
                                     inSUBWAYNAME = false;
@@ -232,9 +253,9 @@ public class Subway_main extends AppCompatActivity
                                     ++i;
                                     if(i>2)
                                         break;
-                                    station_time = ARRIVETIME.substring(0,2) + ARRIVETIME.substring(3,5);// 시간 형식 변환 hh:mm:ss=>hhmm
+                                    station_time = LEFTTME.substring(0,2) + LEFTTME.substring(3,5);// 시간 형식 변환 hh:mm:ss=>hhmm
                                     int arrival_times = Integer.parseInt(station_time) - Integer.parseInt(time_now);
-                                    if(Integer.parseInt(ARRIVETIME.substring(1,2)) - Integer.parseInt(time_now.substring(1,2)) == 1)// 시가 넘어갈 때 40이상 되는거 변화
+                                    if(Integer.parseInt(LEFTTME.substring(1,2)) - Integer.parseInt(time_now.substring(1,2)) == 1)// 시가 넘어갈 때 40이상 되는거 변화
                                         arrival_times -= 40;
                                     if (station_up_name == null){
                                         station_up_name = "";
@@ -266,17 +287,17 @@ public class Subway_main extends AppCompatActivity
                                 if (parser.getName().equals("DESTSTATION_NAME")) {
                                     inDESTSTATION_NAME = true;
                                     System.out.println("여기는 진행되었음");
-                                }else if (parser.getName().equals("ARRIVETIME")) {
-                                    inARRIVETIME = true;
+                                }else if (parser.getName().equals("LEFTTME")) {
+                                    inLEFTTME = true;
                                 }
                                 break;
                             case XmlPullParser.TEXT://parser가 내용에 접근했을때
                                 if (inDESTSTATION_NAME) { //inbstatnNm이 true일 때 태그의 내용을 저장.
                                     DESTSTATION_NAME = parser.getText();
                                     inDESTSTATION_NAME = false;
-                                }else if (inARRIVETIME) { //inarvlMsg2이 true일 때 태그의 내용을 저장.
-                                    ARRIVETIME = parser.getText();
-                                    inARRIVETIME = false;
+                                }else if (inLEFTTME) { //inarvlMsg2이 true일 때 태그의 내용을 저장.
+                                    LEFTTME = parser.getText();
+                                    inLEFTTME = false;
                                 }
                                 break;
                             case XmlPullParser.END_TAG:
@@ -284,9 +305,9 @@ public class Subway_main extends AppCompatActivity
                                     ++i;
                                     if(i>2)
                                         break;
-                                    station_time = ARRIVETIME.substring(0,2) + ARRIVETIME.substring(3,5);
+                                    station_time = LEFTTME.substring(0,2) + LEFTTME.substring(3,5);
                                     int arrival_times = Integer.parseInt(station_time) - Integer.parseInt(time_now);
-                                    if(Integer.parseInt(ARRIVETIME.substring(1,2)) - Integer.parseInt(time_now.substring(1,2)) == 1)
+                                    if(Integer.parseInt(LEFTTME.substring(1,2)) - Integer.parseInt(time_now.substring(1,2)) == 1)
                                         arrival_times -= 40;
                                     if (station_dn_name == null){
                                         station_dn_name = "";
