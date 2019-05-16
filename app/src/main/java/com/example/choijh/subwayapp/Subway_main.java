@@ -4,15 +4,20 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.graphics.Color;
 import android.graphics.drawable.PictureDrawable;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amitshekhar.DebugDB;
@@ -21,6 +26,7 @@ import com.github.chrisbanes.photoview.OnPhotoTapListener;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.tabs.TabLayout;
 import com.kakao.message.template.LinkObject;
 import com.kakao.kakaolink.v2.KakaoLinkResponse;
 import com.kakao.kakaolink.v2.KakaoLinkService;
@@ -45,6 +51,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
 
 public class Subway_main extends AppCompatActivity
@@ -55,17 +65,25 @@ public class Subway_main extends AppCompatActivity
     private Toast mCurrentToast;//포토비유 탭의 임시
     static final String PHOTO_TAP_TOAST_STRING = "Photo Tap! X: %.2f %% Y:%.2f %% ID: %d";//포토비유 탭의 임시
     ListView listview ;//커스텀뷰
-    ListViewMainArrivalAdapter adapter;//커스텀뷰
+    //ListViewMainArrivalAdapter adapter;//커스텀뷰
     String time_now;//현재시간
     DBOpenHelper help;
+    private Subway_main.SectionsPagerAdapter mSectionsPagerAdapter;//탭레이아웃
+    private ViewPager mViewPager;//탭레이아웃
+    static String station_up_name = null;
+    static String station_up_time = null;
+    static String station_dn_name = null;
+    static String station_dn_time = null;
+    //    TextView ari;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_subway_main);
-                           arrival_time();
+        arrival_time();
+//        ari = (TextView) findViewById(R.id.arrival_time);
         // Adapter 생성//커스텀뷰
-        adapter = new ListViewMainArrivalAdapter() ;//커스텀뷰
+//        adapter = new ListViewMainArrivalAdapter() ;//커스텀뷰
 
         // 리스트뷰 참조 및 Adapter달기//커스텀뷰
         //listview = (ListView) findViewById(R.id.listview1);//커스텀뷰
@@ -124,6 +142,22 @@ public class Subway_main extends AppCompatActivity
         }
         photoView.setOnPhotoTapListener(new PhotoTapListener());
 //        listview.setAdapter(adapter);//커스텀뷰//살릴것
+        //탭레이아웃
+
+//        System.out.println("aa를 제대로 가져왔는가? : " + aaa);
+
+        mSectionsPagerAdapter = new Subway_main.SectionsPagerAdapter(getSupportFragmentManager());
+        mViewPager = (ViewPager) findViewById(R.id.main_container);
+        mViewPager.setAdapter(mSectionsPagerAdapter);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.main_tabs);
+        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
+
+
+
+        //ari.setText("aaaaaaaaaaaaaaaaaaaaaaaaa");
+
+        System.out.println("onCreate 종료");
     }
     private void draw_svg(){
         new Thread(){
@@ -148,7 +182,7 @@ public class Subway_main extends AppCompatActivity
                 String station_code = "1716";//병점
                 String station_up = "1";//상행선
                 String station_dn = "2";//하행선
-                String week_code = "3";
+                String week_code = "1";
                 String station_time = null;
                 //해야할 일
                 //1. 평일 1, 토요일 2, 공휴일 3 => 오늘 날짜를 보고 평일인지 휴일인지 알게하는 함수 추가 할 것.
@@ -169,6 +203,7 @@ public class Subway_main extends AppCompatActivity
                     parser.setInput(url_up.openStream(), null);
                     int parserEvent = parser.getEventType();
                     System.out.println("상행선 파싱 시작");
+                    int i = 0;
                     while (parserEvent != XmlPullParser.END_DOCUMENT) {
                         switch (parserEvent) {
                             case XmlPullParser.START_TAG://parser가 시작 태그를 만나면 실행
@@ -194,29 +229,37 @@ public class Subway_main extends AppCompatActivity
                                 break;
                             case XmlPullParser.END_TAG:
                                 if ("row".equals(parser.getName())) {
+                                    ++i;
+                                    if(i>2)
+                                        break;
                                     station_time = ARRIVETIME.substring(0,2) + ARRIVETIME.substring(3,5);// 시간 형식 변환 hh:mm:ss=>hhmm
                                     int arrival_times = Integer.parseInt(station_time) - Integer.parseInt(time_now);
                                     if(Integer.parseInt(ARRIVETIME.substring(1,2)) - Integer.parseInt(time_now.substring(1,2)) == 1)// 시가 넘어갈 때 40이상 되는거 변화
                                         arrival_times = 40;
-                                    if (statin_up_arrival == null){
-                                        statin_up_arrival = DESTSTATION_NAME + "행 " + arrival_times + "분 후\n"
-                                        + ARRIVETIME + "\n";
+                                    if (station_up_name == null){
+                                        station_up_name = "";
+                                        station_up_time = "";
+                                        station_up_name = station_up_name + DESTSTATION_NAME + "행\n";
+                                        station_up_time = station_up_time + arrival_times + "분 후\n";
                                     } else if(arrival_times == 0){
-                                        statin_up_arrival = DESTSTATION_NAME + "행 " + "도착\n"
-                                                + ARRIVETIME+ "\n";
+                                        station_up_name = station_up_name +DESTSTATION_NAME + "행 도착\n";
+                                        station_up_time = station_up_time + arrival_times + "분 후\n";
                                     } else {
-                                        statin_up_arrival = statin_up_arrival + DESTSTATION_NAME + "행 " + arrival_times + "분 후\n"
-                                                + ARRIVETIME+ "\n";
+                                        station_up_name = station_up_name + DESTSTATION_NAME + "행\n";
+                                        station_up_time = station_up_time + arrival_times + "분 후\n";
                                     }
                                 }
                                 break;
                         }
                         parserEvent = parser.next();
                     }
-
+//                    aaa = statin_up_arrival;
+//                    ari.setText("aaaaaaaaaaaaaaaaaaaaaaaaa");
+//                    ari.setText(aaa);
                     parser.setInput(url_dn.openStream(), null);
                     parserEvent = parser.getEventType();
                     System.out.println("하행선 파싱 시작");
+                    i = 0;
                     while (parserEvent != XmlPullParser.END_DOCUMENT) {
                         switch (parserEvent) {
                             case XmlPullParser.START_TAG:
@@ -238,19 +281,24 @@ public class Subway_main extends AppCompatActivity
                                 break;
                             case XmlPullParser.END_TAG:
                                 if ("row".equals(parser.getName())) {
+                                    ++i;
+                                    if(i>2)
+                                        break;
                                     station_time = ARRIVETIME.substring(0,2) + ARRIVETIME.substring(3,5);
                                     int arrival_times = Integer.parseInt(station_time) - Integer.parseInt(time_now);
                                     if(Integer.parseInt(ARRIVETIME.substring(1,2)) - Integer.parseInt(time_now.substring(1,2)) == 1)
                                         arrival_times = 40;
-                                    if (arrival_times == 0){
-                                        statin_dn_arrival = DESTSTATION_NAME + "행 " + arrival_times + "분 후\n"
-                                                + ARRIVETIME + "\n";
-                                    } else if(statin_dn_arrival == null){
-                                        statin_dn_arrival = DESTSTATION_NAME + "행 " + "도착\n"
-                                                + ARRIVETIME+ "\n";
+                                    if (station_dn_name == null){
+                                        station_dn_name = "";
+                                        station_dn_time = "";
+                                        station_dn_name = station_dn_name + DESTSTATION_NAME + "행\n";
+                                        station_dn_time = station_dn_time + arrival_times + "분 후\n";
+                                    } else if(arrival_times == 0){
+                                        station_dn_name = station_dn_name + DESTSTATION_NAME + "행 도착\n";
+                                        station_dn_time = station_dn_time + arrival_times + "분 후\n";
                                     } else {
-                                        statin_dn_arrival = statin_dn_arrival + DESTSTATION_NAME + "행 " + arrival_times + "분 후\n"
-                                                + ARRIVETIME+ "\n";
+                                        station_dn_name = station_dn_name + DESTSTATION_NAME + "행\n";
+                                        station_dn_time = station_dn_time + arrival_times + "분 후\n";
                                     }
                                 }
                                 break;
@@ -259,11 +307,12 @@ public class Subway_main extends AppCompatActivity
                     }//하행선 파싱 끝
 
 //                    arrivalTime.setText(arrivalTime.getText() + station_time );
-                    adapter.addItem(SUBWAYNAME,statin_up_arrival, statin_dn_arrival) ;
+//                    adapter.addItem(SUBWAYNAME,statin_up_arrival, statin_dn_arrival) ;
                 } catch (Exception e) {
 //                    arrivalTime.setText("에러가..났습니다...");
                     e.printStackTrace();
                 }
+                System.out.println("도착시간 파싱 끝");
             }
         }.start();
     };
@@ -510,6 +559,83 @@ public class Subway_main extends AppCompatActivity
             } catch (NoSuchAlgorithmException e) {
                 Log.e("KeyHash", "Unable to get MessageDigest. signature=" + signature, e);
             }
+        }
+    }
+
+    //탭레이아웃 시작
+
+
+    /**
+     * A placeholder fragment containing a simple view.
+     */
+    public static class PlaceholderFragment extends Fragment {
+        /**
+         * The fragment argument representing the section number for this
+         * fragment.
+         */
+        private static final String ARG_SECTION_NUMBER = "section_number";
+
+        public PlaceholderFragment() {
+        }
+
+        /**
+         * Returns a new instance of this fragment for the given section
+         * number.
+         */
+        public static Subway_main.PlaceholderFragment newInstance(int sectionNumber) {
+            Subway_main.PlaceholderFragment fragment = new Subway_main.PlaceholderFragment();
+            Bundle args = new Bundle();
+            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+            fragment.setArguments(args);
+            return fragment;
+        }
+
+        @Override//뷰레이아웃안에 내용부분에 영향을 끼치는 부분
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            Subway_main aa = new Subway_main();
+            View rootView = inflater.inflate(R.layout.fragment_content_subway_main_arrival, container, false);
+            System.out.println("내부클래스 시작");
+            Button button1 = (Button) rootView.findViewById(R.id.main_view_btn);
+            button1.setBackgroundColor(Color.rgb(46,86,184));
+            button1.setTextColor(Color.parseColor("#ffffff"));
+            button1.setText("병점");
+            TextView textView1 = (TextView) rootView.findViewById(R.id.main_view_up_station);
+            TextView textView2 = (TextView) rootView.findViewById(R.id.main_view_up_time);
+            TextView textView3 = (TextView) rootView.findViewById(R.id.main_view_dn_station);
+            TextView textView4 = (TextView) rootView.findViewById(R.id.main_view_dn_time);
+//            System.out.println(aaa);
+            textView1.setText(station_up_name);
+            textView2.setText(station_up_time);
+            textView3.setText(station_dn_name);
+            textView4.setText(station_dn_time);
+            System.out.println("내부클래스 온크리에이트 종료");
+
+            return rootView;
+        }
+
+    }
+
+    /**
+     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
+     * one of the sections/tabs/pages.
+     */
+    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+
+        public SectionsPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            // getItem is called to instantiate the fragment for the given page.
+            // Return a PlaceholderFragment (defined as a static inner class below).
+            return Subway_main.PlaceholderFragment.newInstance(position + 1);
+        }
+
+        @Override
+        public int getCount() {
+            // Show 3 total pages.
+            return 2;
         }
     }
 
