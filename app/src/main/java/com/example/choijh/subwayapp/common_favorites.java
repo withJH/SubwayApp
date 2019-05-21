@@ -12,6 +12,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class common_favorites extends AppCompatActivity {
@@ -82,6 +84,9 @@ public class common_favorites extends AppCompatActivity {
          * fragment.
          */
         private static final String ARG_SECTION_NUMBER = "section_number";
+        ListView subway_favorite;
+        SearchAdapter searchAdapter = new SearchAdapter(); // 어댑터
+
 
         public PlaceholderFragment() {
         }
@@ -102,9 +107,30 @@ public class common_favorites extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_common_favorites, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
+            subway_favorite = (ListView) rootView.findViewById(R.id.section_label);
+
+            getFavoriteDB();
             return rootView;
+        }
+
+        private void getFavoriteDB() {
+            DBOpenHelper help = new DBOpenHelper(getContext());
+            help.open();
+
+            Cursor search_cursor = help.selectColumns();
+            while(search_cursor.moveToNext()){
+                String code = search_cursor.getString(search_cursor.getColumnIndex("station_code"));
+                String name = search_cursor.getString(search_cursor.getColumnIndex("station_name"));
+                String line = search_cursor.getString(search_cursor.getColumnIndex("station_line"));
+                String fr = search_cursor.getString(search_cursor.getColumnIndex("station_fr"));
+                String favorite = search_cursor.getString(search_cursor.getColumnIndex("favorite_station"));
+                if(favorite.equals("1")) {
+                    searchAdapter.addItem(code, name, line, fr, favorite); // 어댑터에 데이터 삽입
+                }
+            }
+            subway_favorite.setAdapter(searchAdapter); // 리스트뷰에 데이터 올리기
+            search_cursor.close();
+            help.close();
         }
     }
 
@@ -131,4 +157,6 @@ public class common_favorites extends AppCompatActivity {
             return 2;
         }
     }
+
+
 }

@@ -6,6 +6,7 @@ public class SubwayItem {
     private String subway_name;
     private String line;
     private String fr_code;
+    private String favorite;
 
     public String getSubway_code() {
         return subway_code;
@@ -40,4 +41,11 @@ public class SubwayItem {
         this.line = line;
     }
 
+    public String getFavorite() {
+        return favorite;
+    }
+
+    public void setFavorite(String favorite) {
+        this.favorite = favorite;
+    }
 }

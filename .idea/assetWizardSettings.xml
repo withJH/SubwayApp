@@ -45,8 +45,8 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="imageAsset" value="D:\다운로드\filled_star.png" />
-                                      <entry key="outputName" value="unfilled_star" />
+                                      <entry key="imageAsset" value="D:\바탕화면\pin_gps_location_find_map_search_icon-icons.com_59982.png" />
+                                      <entry key="outputName" value="my_gps" />
                                       <entry key="themeColor" value="ffc400" />
                                     </map>
                                   </option>

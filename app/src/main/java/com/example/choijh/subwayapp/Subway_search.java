@@ -3,10 +3,13 @@ package com.example.choijh.subwayapp;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -26,22 +29,22 @@ public class Subway_search extends AppCompatActivity {
 
         StrictMode.enableDefaults();
         station_list = (ListView) findViewById(R.id.station_list);
-        //getInfoFromAPI();
         getDB();
+
+
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.subway_search, menu);
 
-        searchView = (SearchView)menu.findItem(R.id.action_search).getActionView();
+        searchView = (SearchView)menu.findItem(R.id.action_subway_search).getActionView();
         // searchview 길이 꽉차게 하기
         searchView.setMaxWidth(Integer.MAX_VALUE);
         // searchview 힌트 메시지
         searchView.setQueryHint("역명으로 검색합니다.");
         searchView.setIconified(false);
 
-        final MenuItem menuItem = menu.getItem(0);
         //SearchView의 검색 이벤트
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             //검색버튼을 눌렀을 경우
@@ -76,11 +79,14 @@ public class Subway_search extends AppCompatActivity {
             String name = search_cursor.getString(search_cursor.getColumnIndex("station_name"));
             String line = search_cursor.getString(search_cursor.getColumnIndex("station_line"));
             String fr = search_cursor.getString(search_cursor.getColumnIndex("station_fr"));
-            searchAdapter.addItem(code, name, line, fr); // 어댑터에 데이터 삽입
+            String favorite = search_cursor.getString(search_cursor.getColumnIndex("favorite_station"));
+            searchAdapter.addItem(code, name, line, fr, favorite); // 어댑터에 데이터 삽입
         }
         station_list.setAdapter(searchAdapter); // 리스트뷰에 데이터 올리기
         search_cursor.close();
         help.close();
     }
+
+
 }
 

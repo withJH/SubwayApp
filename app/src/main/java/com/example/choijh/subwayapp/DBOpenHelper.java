@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DBOpenHelper {
 
     private static final String DATABASE_NAME = "Subway_App.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     public static SQLiteDatabase mDB;
     private DatabaseHelper mDBHelper;
     private Context mContext;
@@ -28,7 +28,7 @@ public class DBOpenHelper {
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion){
-            db.execSQL("DROP TABLE IF EXISTS "+ DataBases.StationCreateDB._TABLENAME);
+            db.execSQL("ALTER TABLE "+ DataBases.StationCreateDB._TABLENAME+" ADD COLUMN "+DataBases.StationCreateDB.FAVORITE);
             onCreate(db);
         }
     }
@@ -51,13 +51,20 @@ public class DBOpenHelper {
         mDB.close();
     }
 
-    public long insertColumn(String station_code, String station_name, String station_line , String station_fr){ // 데이터 삽입
+    public long insert(String station_code, String station_name, String station_line , String station_fr, int favorite){ // 데이터 삽입
         ContentValues values = new ContentValues();
         values.put(DataBases.StationCreateDB.CODE, station_code);
         values.put(DataBases.StationCreateDB.NAME, station_name);
         values.put(DataBases.StationCreateDB.LINE, station_line);
         values.put(DataBases.StationCreateDB.FR, station_fr);
+        values.put(DataBases.StationCreateDB.FAVORITE, favorite);
         return mDB.insert(DataBases.StationCreateDB._TABLENAME, null, values);
+    }
+
+    public boolean update(String station_code, int update_F){
+        ContentValues values = new ContentValues();
+        values.put(DataBases.StationCreateDB.FAVORITE, update_F);
+        return mDB.update(DataBases.StationCreateDB._TABLENAME, values, "station_code = ?", new String[] {station_code}) > 0;
     }
 
     public Cursor selectColumns(){ // 데이터 검색 (자세한 사용법은 Subway_search.java 파일에서 사용)
@@ -74,4 +81,6 @@ public class DBOpenHelper {
             return false;
         }
     }
+
+
 }

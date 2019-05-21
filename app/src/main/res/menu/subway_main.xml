@@ -2,9 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_searchbar"
+        android:id="@+id/action_subway_searchbar"
         android:orderInCategory="100"
         android:title="New Layout"
         android:icon="@drawable/ic_search"
         app:showAsAction="always" />
+
 </menu>

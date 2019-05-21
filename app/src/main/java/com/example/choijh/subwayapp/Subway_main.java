@@ -387,7 +387,7 @@ public class Subway_main extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.action_searchbar) { // 검색 화면으로 이동
+        if (id == R.id.action_subway_searchbar) { // 검색 화면으로 이동
             Intent intent = new Intent(Subway_main.this, Subway_search.class);
             startActivityForResult(intent, 1001);
         }
@@ -487,7 +487,6 @@ public class Subway_main extends AppCompatActivity
                 @Override
                 public void run() {
                     try {
-
                         String key = "7a6c6556566a686338384f56675879"; // 지하철역 이름으로 검색 인증키
 
                         boolean inCD = false, inNAME = false, inNUM = false, inFR = false;
@@ -545,7 +544,7 @@ public class Subway_main extends AppCompatActivity
                                 case XmlPullParser.END_TAG: //parser가 종료태그 만났을 때 ex) </ul>
                                     if (parser.getName().equals("row")) {
                                         //searchAdapter.addItem(station_code, station_nm, line_num, fr_code); // 어댑터에 데이터 삽입
-                                        help.insertColumn(station_code, station_nm, line_num, fr_code);
+                                        help.insert(station_code, station_nm, line_num, fr_code, 0);
                                     }
                                     break;
                             }
@@ -558,6 +557,7 @@ public class Subway_main extends AppCompatActivity
                 }
             }.start();
         }
+
 
     }
 
