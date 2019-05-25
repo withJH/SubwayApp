@@ -9,11 +9,13 @@
     tools:showIn="@layout/app_bar_subway_main"
     android:orientation="vertical">
 
-    <com.github.chrisbanes.photoview.PhotoView
+    <com.github.piasy.biv.view.BigImageView
         android:id="@+id/sub_map"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:layout_margin="20dp" />
+        android:layout_margin="20dp"
+        app:optimizeDisplay="true"
+        />
     <!--<TextView-->
         <!--android:id="@+id/arrival_time"-->
         <!--android:layout_width="match_parent"-->

@@ -1,11 +1,15 @@
 package com.example.choijh.subwayapp;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.PictureDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
@@ -20,19 +24,29 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
 import com.amitshekhar.DebugDB;
-import com.caverock.androidsvg.SVG;
-import com.github.chrisbanes.photoview.OnPhotoTapListener;
-import com.github.chrisbanes.photoview.PhotoView;
+import com.github.piasy.biv.BigImageViewer;
+import com.github.piasy.biv.loader.glide.GlideImageLoader;
+import com.github.piasy.biv.view.BigImageView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
-import com.kakao.message.template.LinkObject;
 import com.kakao.kakaolink.v2.KakaoLinkResponse;
 import com.kakao.kakaolink.v2.KakaoLinkService;
+import com.kakao.message.template.LinkObject;
 import com.kakao.message.template.TextTemplate;
+import com.kakao.network.ErrorResult;
 import com.kakao.network.callback.ResponseCallback;
-import com.kakao.network.*;
 import com.kakao.util.helper.log.Logger;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -47,26 +61,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.viewpager.widget.ViewPager;
-
 
 public class Subway_main extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    PhotoView photoView;
-    SVG svg;
-    private Toast mCurrentToast;//포토비유 탭의 임시
-    static final String PHOTO_TAP_TOAST_STRING = "Photo Tap! X: %.2f %% Y:%.2f %% ID: %d";//포토비유 탭의 임시
-    ListView listview ;//커스텀뷰
-    //ListViewMainArrivalAdapter adapter;//커스텀뷰
     String time_now;//현재시간
     DBOpenHelper help;
     private Subway_main.SectionsPagerAdapter mSectionsPagerAdapter;//탭레이아웃
@@ -76,22 +74,19 @@ public class Subway_main extends AppCompatActivity
     static String station_dn_name = null;
     static String station_dn_time = null;
     private String week_code = null;
-    //    TextView ari;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        BigImageViewer.initialize(GlideImageLoader.with(getApplicationContext()));
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_subway_main);
-        week();
-        arrival_time();
-//        ari = (TextView) findViewById(R.id.arrival_time);
-        // Adapter 생성//커스텀뷰
-//        adapter = new ListViewMainArrivalAdapter() ;//커스텀뷰
 
-        // 리스트뷰 참조 및 Adapter달기//커스텀뷰
-        //listview = (ListView) findViewById(R.id.listview1);//커스텀뷰
+        week();//요일 1,2,3 추출
         time_now = new SimpleDateFormat("HHmm").format(new Date());
-        //draw_svg();
+        arrival_time();
+
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false); //원래 툴바 타이틀(제목)없애줌
@@ -119,35 +114,8 @@ public class Subway_main extends AppCompatActivity
         getInfoFromAPI();
         DebugDB.getAddressLog();
 
-        try {
-            svg = SVG.getFromAsset(getResources().getAssets(), "svg_seoul_subway_linemap.svg");
-            PictureDrawable drawable = new PictureDrawable(svg.renderToPicture());
-            photoView = findViewById(R.id.sub_map);
-
-            photoView.setImageDrawable(drawable);
-            photoView.setMinimumScale(0.5f);
-            photoView.setMaximumScale(30.0f);
-
-            photoView.post(new Runnable() {
-                @Override
-                public void run() {
-                    float x = 2862f;
-                    float y = 2790f;
-
-                    float focalX = x * photoView.getRight() / svg.getDocumentWidth();
-                    float focalY = y * photoView.getBottom() / svg.getDocumentHeight();
-                    photoView.setScale(5.0f, focalX, focalY, false);
-                }
-            });
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        photoView.setOnPhotoTapListener(new PhotoTapListener());
-//        listview.setAdapter(adapter);//커스텀뷰//살릴것
-        //탭레이아웃
-
-//        System.out.println("aa를 제대로 가져왔는가? : " + aaa);
+        BigImageView bigImageView = (BigImageView) findViewById(R.id.sub_map);
+        bigImageView.showImage(Uri.parse("file:///android_asset/subway_map.png"));
 
         mSectionsPagerAdapter = new Subway_main.SectionsPagerAdapter(getSupportFragmentManager());
         mViewPager = (ViewPager) findViewById(R.id.main_container);
@@ -156,44 +124,58 @@ public class Subway_main extends AppCompatActivity
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
-
-
-        //ari.setText("aaaaaaaaaaaaaaaaaaaaaaaaa");
-
         System.out.println("onCreate 종료");
     }
-    private void week(){
-        Calendar cal= Calendar.getInstance ( );
-        int day_of_week = cal.get ( Calendar.DAY_OF_WEEK );
-        if ( day_of_week == 1 )//일요일
+
+    Bitmap ShrinkBitmap(Context context, int width, int height) {
+        //비트맵 옵션 설정을 위한 객체 생성
+        BitmapFactory.Options bmpFactoryOptions = new BitmapFactory.Options();
+        //아래 부분은 중요!
+        //비트맵 객체를 생성 하지 않고, 해당 이미지의 정보만 추출시 사용한다,
+        //out of memory를 예외를 예방 할수 있는 좋은 방법이다...
+        bmpFactoryOptions.inJustDecodeBounds = true;
+        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.subway_map_png, bmpFactoryOptions);
+        //비율 계산
+        int heightRatio = (int) Math.ceil(bmpFactoryOptions.outHeight / (float) height);
+        int widthRatio = (int) Math.ceil(bmpFactoryOptions.outWidth / (float) width);
+        if (heightRatio > 1 || widthRatio > 1) {
+            if (heightRatio > widthRatio) {
+                // 샘플 사이즈를 지정 한다
+                // 샘플 사이즈 N으로 설정 하면 -> 이미지 사이즈의 1/N 이 된다.
+                bmpFactoryOptions.inSampleSize = heightRatio;
+            } else {
+                bmpFactoryOptions.inSampleSize = widthRatio;
+            }
+        }
+        //실제 Bitmap 객체 생성을 하기위해 False로 세팅
+        bmpFactoryOptions.inJustDecodeBounds = false;
+        bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.subway_map_png, bmpFactoryOptions);
+        return bitmap;
+    }
+
+    private void week() {
+        Calendar cal = Calendar.getInstance();
+        int day_of_week = cal.get(Calendar.DAY_OF_WEEK);
+        if (day_of_week == 1)//일요일
             week_code = "3";
-        else if ( day_of_week == 2 )//월요일
+        else if (day_of_week == 2)//월요일
             week_code = "1";
-        else if ( day_of_week == 3 )//화요일
+        else if (day_of_week == 3)//화요일
             week_code = "1";
-        else if ( day_of_week == 4 )//수요일
+        else if (day_of_week == 4)//수요일
             week_code = "1";
-        else if ( day_of_week == 5 )//목요일
+        else if (day_of_week == 5)//목요일
             week_code = "1";
-        else if ( day_of_week == 6 )//금요일
+        else if (day_of_week == 6)//금요일
             week_code = "1";
-        else if ( day_of_week == 7 )//토요일
+        else if (day_of_week == 7)//토요일
             week_code = "2";
     }
-    private void draw_svg(){
-        new Thread(){
+
+    private void arrival_time() {
+        new Thread() {
             @Override
-            public void run(){
-
-            }
-        }.start();
-
-    }
-
-    private void arrival_time(){
-        new Thread(){
-            @Override
-            public void run(){
+            public void run() {
 //                TextView arrivalTime = (TextView) findViewById(R.id.arrival_time); //파싱된 결과확인! 이것은 파싱한 것이 나올 부분
                 boolean inDESTSTATION_NAME = false, inLEFTTME = false, inSUBWAYNAME = false;
                 String DESTSTATION_NAME = null, LEFTTME = null, SUBWAYNAME = null;
@@ -206,7 +188,6 @@ public class Subway_main extends AppCompatActivity
 //                String week_code = "1";
                 String station_time = null;
                 //해야할 일
-                //1. 평일 1, 토요일 2, 공휴일 3 => 오늘 날짜를 보고 평일인지 휴일인지 알게하는 함수 추가 할 것.
                 //2. 새벽시간 차가 없을때 널값으로 줘서 이상한 값이 나오지 않게 할 것
                 //나중에 해야할 일
                 //1. 디비 받아서 호선별 색 이미지 달라지게 다른 색상의 이미지 추가
@@ -230,9 +211,9 @@ public class Subway_main extends AppCompatActivity
                             case XmlPullParser.START_TAG://parser가 시작 태그를 만나면 실행
                                 if (parser.getName().equals("DESTSTATION_NAME")) { // 종착지하철역명 만나면 내용을 받을수 있게 하자
                                     inDESTSTATION_NAME = true;
-                                }else if (parser.getName().equals("LEFTTME")) { // 첫번째도착메세지행 만나면 내용을 받을수 있게 하자
+                                } else if (parser.getName().equals("LEFTTME")) { // 첫번째도착메세지행 만나면 내용을 받을수 있게 하자
                                     inLEFTTME = true;
-                                }else if (parser.getName().equals("SUBWAYNAME")) { // 첫번째도착메세지행 만나면 내용을 받을수 있게 하자
+                                } else if (parser.getName().equals("SUBWAYNAME")) { // 첫번째도착메세지행 만나면 내용을 받을수 있게 하자
                                     inSUBWAYNAME = true;
                                 }
                                 break;
@@ -240,10 +221,10 @@ public class Subway_main extends AppCompatActivity
                                 if (inDESTSTATION_NAME) {
                                     DESTSTATION_NAME = parser.getText();
                                     inDESTSTATION_NAME = false;
-                                }else if (inLEFTTME) {
+                                } else if (inLEFTTME) {
                                     LEFTTME = parser.getText();
                                     inLEFTTME = false;
-                                }else if (inSUBWAYNAME) {
+                                } else if (inSUBWAYNAME) {
                                     SUBWAYNAME = parser.getText();
                                     inSUBWAYNAME = false;
                                 }
@@ -251,19 +232,19 @@ public class Subway_main extends AppCompatActivity
                             case XmlPullParser.END_TAG:
                                 if ("row".equals(parser.getName())) {
                                     ++i;
-                                    if(i>2)
+                                    if (i > 2)
                                         break;
-                                    station_time = LEFTTME.substring(0,2) + LEFTTME.substring(3,5);// 시간 형식 변환 hh:mm:ss=>hhmm
+                                    station_time = LEFTTME.substring(0, 2) + LEFTTME.substring(3, 5);// 시간 형식 변환 hh:mm:ss=>hhmm
                                     int arrival_times = Integer.parseInt(station_time) - Integer.parseInt(time_now);
-                                    if(Integer.parseInt(LEFTTME.substring(1,2)) - Integer.parseInt(time_now.substring(1,2)) == 1)// 시가 넘어갈 때 40이상 되는거 변화
+                                    if (Integer.parseInt(LEFTTME.substring(1, 2)) - Integer.parseInt(time_now.substring(1, 2)) == 1)// 시가 넘어갈 때 40이상 되는거 변화
                                         arrival_times -= 40;
-                                    if (station_up_name == null){
+                                    if (station_up_name == null) {
                                         station_up_name = "";
                                         station_up_time = "";
                                         station_up_name = station_up_name + DESTSTATION_NAME + "행\n";
                                         station_up_time = station_up_time + arrival_times + "분 후\n";
-                                    } else if(arrival_times == 0){
-                                        station_up_name = station_up_name +DESTSTATION_NAME + "행 도착\n";
+                                    } else if (arrival_times == 0) {
+                                        station_up_name = station_up_name + DESTSTATION_NAME + "행 도착\n";
                                         station_up_time = station_up_time + arrival_times + "분 후\n";
                                     } else {
                                         station_up_name = station_up_name + DESTSTATION_NAME + "행\n";
@@ -287,7 +268,7 @@ public class Subway_main extends AppCompatActivity
                                 if (parser.getName().equals("DESTSTATION_NAME")) {
                                     inDESTSTATION_NAME = true;
                                     System.out.println("여기는 진행되었음");
-                                }else if (parser.getName().equals("LEFTTME")) {
+                                } else if (parser.getName().equals("LEFTTME")) {
                                     inLEFTTME = true;
                                 }
                                 break;
@@ -295,7 +276,7 @@ public class Subway_main extends AppCompatActivity
                                 if (inDESTSTATION_NAME) { //inbstatnNm이 true일 때 태그의 내용을 저장.
                                     DESTSTATION_NAME = parser.getText();
                                     inDESTSTATION_NAME = false;
-                                }else if (inLEFTTME) { //inarvlMsg2이 true일 때 태그의 내용을 저장.
+                                } else if (inLEFTTME) { //inarvlMsg2이 true일 때 태그의 내용을 저장.
                                     LEFTTME = parser.getText();
                                     inLEFTTME = false;
                                 }
@@ -303,18 +284,18 @@ public class Subway_main extends AppCompatActivity
                             case XmlPullParser.END_TAG:
                                 if ("row".equals(parser.getName())) {
                                     ++i;
-                                    if(i>2)
+                                    if (i > 2)
                                         break;
-                                    station_time = LEFTTME.substring(0,2) + LEFTTME.substring(3,5);
+                                    station_time = LEFTTME.substring(0, 2) + LEFTTME.substring(3, 5);
                                     int arrival_times = Integer.parseInt(station_time) - Integer.parseInt(time_now);
-                                    if(Integer.parseInt(LEFTTME.substring(1,2)) - Integer.parseInt(time_now.substring(1,2)) == 1)
+                                    if (Integer.parseInt(LEFTTME.substring(1, 2)) - Integer.parseInt(time_now.substring(1, 2)) == 1)
                                         arrival_times -= 40;
-                                    if (station_dn_name == null){
+                                    if (station_dn_name == null) {
                                         station_dn_name = "";
                                         station_dn_time = "";
                                         station_dn_name = station_dn_name + DESTSTATION_NAME + "행\n";
                                         station_dn_time = station_dn_time + arrival_times + "분 후\n";
-                                    } else if(arrival_times == 0){
+                                    } else if (arrival_times == 0) {
                                         station_dn_name = station_dn_name + DESTSTATION_NAME + "행 도착\n";
                                         station_dn_time = station_dn_time + arrival_times + "분 후\n";
                                     } else {
@@ -336,31 +317,15 @@ public class Subway_main extends AppCompatActivity
                 System.out.println("도착시간 파싱 끝");
             }
         }.start();
-    };
+    }
+
+    ;
+
     private void moevTofullScreen(View view) {
         Intent intent = new Intent(Subway_main.this, Subway_fullScreen.class);
         startActivity(intent);
     }
 
-    private class PhotoTapListener implements OnPhotoTapListener {//탭
-
-        @Override
-        public void onPhotoTap(ImageView view, float x, float y) {
-            float xPercentage = x * 100f;
-            float yPercentage = y * 100f;
-
-//            showToast(String.format(PHOTO_TAP_TOAST_STRING, xPercentage, yPercentage, view == null ? 0 : view.getId()));
-            moevTofullScreen(view);
-        }
-    }
-
-    private void showToast(CharSequence text) {
-        if (mCurrentToast != null) {
-            mCurrentToast.cancel();
-        }
-        mCurrentToast = Toast.makeText(Subway_main.this, text, Toast.LENGTH_SHORT);
-        mCurrentToast.show();
-    }
 
     @Override
     public void onBackPressed() {
@@ -426,7 +391,7 @@ public class Subway_main extends AppCompatActivity
             serverCallbackArgs.put("user_id", "${current_user_id}");
             serverCallbackArgs.put("product_id", "${shared_product_id}");
 
-            KakaoLinkService.getInstance().sendDefault(this,params, serverCallbackArgs, new ResponseCallback<KakaoLinkResponse>() {
+            KakaoLinkService.getInstance().sendDefault(this, params, serverCallbackArgs, new ResponseCallback<KakaoLinkResponse>() {
                 @Override
                 public void onFailure(ErrorResult errorResult) {
                     Logger.e(errorResult.toString());
@@ -482,7 +447,7 @@ public class Subway_main extends AppCompatActivity
         help.open();
         help.create();
 
-        if(!help.confirmTable()) {
+        if (!help.confirmTable()) {
             new Thread() {
                 @Override
                 public void run() {
@@ -617,7 +582,7 @@ public class Subway_main extends AppCompatActivity
             View rootView = inflater.inflate(R.layout.fragment_content_subway_main_arrival, container, false);
             System.out.println("내부클래스 시작");
             Button button1 = (Button) rootView.findViewById(R.id.main_view_btn);
-            button1.setBackgroundColor(Color.rgb(46,86,184));
+            button1.setBackgroundColor(Color.rgb(46, 86, 184));
             button1.setTextColor(Color.parseColor("#ffffff"));
             button1.setText("병점");
             TextView textView1 = (TextView) rootView.findViewById(R.id.main_view_up_station);
@@ -625,7 +590,7 @@ public class Subway_main extends AppCompatActivity
             TextView textView3 = (TextView) rootView.findViewById(R.id.main_view_dn_station);
             TextView textView4 = (TextView) rootView.findViewById(R.id.main_view_dn_time);
 //            System.out.println(aaa);
-            textView1.setText(station_up_name);
+            textView1.setText("aaaaa");
             textView2.setText(station_up_time);
             textView3.setText(station_dn_name);
             textView4.setText(station_dn_time);
@@ -659,5 +624,6 @@ public class Subway_main extends AppCompatActivity
             return 2;
         }
     }
+
 
 }

@@ -129,10 +129,8 @@ public class Bus_main extends AppCompatActivity
         mapView.setCurrentLocationEventListener(this);
 
         if (!checkLocationServicesStatus()) {
-
             showDialogForLocationServiceSetting();
         }else {
-
             checkRunTimePermission();
         }
     }
