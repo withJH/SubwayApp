@@ -11,7 +11,6 @@ import android.os.Bundle;
 
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import android.os.StrictMode;
 import android.util.Log;
@@ -30,7 +29,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.recyclerview.widget.SortedList;
 import androidx.viewpager.widget.ViewPager;
 
 import android.view.Menu;
@@ -150,10 +148,8 @@ public class Bus_main extends AppCompatActivity
         mapView.setCurrentLocationEventListener(this);
 
         if (!checkLocationServicesStatus()) {
-
             showDialogForLocationServiceSetting();
         }else {
-
             checkRunTimePermission();
         }
 
@@ -205,7 +201,12 @@ public class Bus_main extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_bus_searchbar) {
+            Intent intent = new Intent(Bus_main.this, Bus_search.class);
+            startActivityForResult(intent, 1001);
+        }
+
+        if (id == R.id.action_bus_gps) {
             return true;
         }
 

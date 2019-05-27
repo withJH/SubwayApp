@@ -9,19 +9,53 @@
     tools:showIn="@layout/app_bar_subway_main"
     android:orientation="vertical">
 
-    <com.github.chrisbanes.photoview.PhotoView
+    <com.github.piasy.biv.view.BigImageView
         android:id="@+id/sub_map"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:layout_margin="20dp" />
-    <TextView
-        android:id="@+id/arrival_time"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_margin="20dp"/>
+        android:layout_margin="20dp"
+        app:optimizeDisplay="true"
+        />
+    <!--<TextView-->
+        <!--android:id="@+id/arrival_time"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="100dp"-->
+        <!--android:layout_margin="20dp"/>-->
     <!--<ListView-->
         <!--android:id="@+id/listview1"-->
         <!--android:layout_width="match_parent"-->
         <!--android:layout_height="200dp"-->
         <!--android:layout_margin="20dp" />-->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="200dp"
+        android:layout_margin="20dp"
+        android:orientation="vertical">
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/main_tabs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/TabTheme">
+
+            <com.google.android.material.tabs.TabItem
+                android:id="@+id/main_tab1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="지하철A"
+                android:theme="@style/TabTheme" />
+
+            <com.google.android.material.tabs.TabItem
+                android:id="@+id/main_tab2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="지하철B"
+                android:theme="@style/TabTheme" />
+        </com.google.android.material.tabs.TabLayout>
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/main_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+    </LinearLayout>
 </LinearLayout>

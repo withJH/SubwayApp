@@ -11,10 +11,9 @@
         <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:id="@+id/unfilled_star"
+            android:id="@+id/unfilled_star2"
             android:layout_margin="5dp"
             android:button="@drawable/checked_favorite"
-            android:textColor="#FFFFFF"
             android:focusable="false" />
 
         <LinearLayout
@@ -33,7 +32,7 @@
                 android:id="@+id/station_code"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-               />
+                />
 
         </LinearLayout>
         <ImageView
