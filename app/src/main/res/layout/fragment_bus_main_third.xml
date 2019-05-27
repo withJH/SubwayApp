@@ -10,6 +10,6 @@
         android:id="@+id/fratext3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="주변정류장 30m" />
+        android:text="주변정류장이 없습니다." />
 
 </LinearLayout>

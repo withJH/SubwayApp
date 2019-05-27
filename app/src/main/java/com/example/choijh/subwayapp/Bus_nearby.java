@@ -158,9 +158,15 @@ public class Bus_nearby extends AppCompatActivity
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_common_favorites, container, false);
-            TextView textView = rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
+            View rootView = null;
+            if(getArguments().getInt(ARG_SECTION_NUMBER) == 1){
+                rootView = inflater.inflate(R.layout.fragment_bus_nearby_one, container, false);
+                //TextView textView = rootView.findViewById(R.id.section_label1);
+            }else if(getArguments().getInt(ARG_SECTION_NUMBER) == 2){
+                rootView = inflater.inflate(R.layout.fragment_bus_nearby_two, container, false);
+                //TextView textView = rootView.findViewById(R.id.section_label2);
+            }
+            //textView.setText(getString(R.string.section_format, ));
             return rootView;
         }
     }
@@ -177,14 +183,19 @@ public class Bus_nearby extends AppCompatActivity
 
         @Override
         public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            switch (position) {
+                case 0:
+                    return BusNearbyFirstFragment.newInstance(0);
+                case 1:
+                    return BusNearbySecondFragment.newInstance(1);
+                default:
+                    return null;
+            }
         }
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
+            // Show 2 total pages.
             return 2;
         }
     }

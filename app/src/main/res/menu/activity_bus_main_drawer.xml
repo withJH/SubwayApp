@@ -36,6 +36,10 @@
                 android:id="@+id/nav_near"
                 android:icon="@drawable/ic_menu_send"
                 android:title="임시:내 주변 버스" />
+            <item
+                android:id="@+id/nav_full"
+                android:icon="@drawable/ic_menu_send"
+                android:title="임시:버스 클릭시 풀화면" />
 
         </menu>
     </item>

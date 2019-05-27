@@ -2,6 +2,7 @@ package com.example.choijh.subwayapp;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -12,6 +13,7 @@ import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
 import com.google.android.material.navigation.NavigationView;
@@ -35,6 +37,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import net.daum.mf.map.api.MapPOIItem;
@@ -42,6 +46,13 @@ import net.daum.mf.map.api.MapPoint;
 import net.daum.mf.map.api.MapReverseGeoCoder;
 import net.daum.mf.map.api.MapView;
 
+import org.w3c.dom.Text;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,6 +65,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Query;
+
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.io.BufferedReader;
+import java.io.IOException;
 
 
 public class Bus_main extends AppCompatActivity
@@ -70,16 +88,23 @@ public class Bus_main extends AppCompatActivity
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
     private static final int PERMISSIONS_REQUEST_CODE = 100;
     String[] REQUIRED_PERMISSIONS  = {Manifest.permission.ACCESS_FINE_LOCATION};
-    String x;
-    String y;
+    String x; //x좌표
+    String y; //y좌표
 
     MapView mapView;
     ArrayList<MapPOIItem> marker = new ArrayList<MapPOIItem>();
+
+    public static Context mBusmain; //다른데서 여기 함수 쓰기 위해서 만듬
+
+    public String data;
+
+    public String[] bdata;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bus_main);
+        mBusmain = this;
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false); //원래 툴바 타이틀(제목)없애줌
@@ -107,16 +132,10 @@ public class Bus_main extends AppCompatActivity
         mapView = new MapView(this);
 
         ViewGroup mapViewContainer = findViewById(R.id.map_view1);
+        mapView.setZoomLevel(1, true); //지도 확대 부분
         mapViewContainer.addView(mapView);
 
-        //뷰페이저 부분
-        ViewPager vpPager = (ViewPager) findViewById(R.id.vpPager);
-        adapterViewPager = new MyPagerAdapter(getSupportFragmentManager());
-        vpPager.setAdapter(adapterViewPager);
-
-        CircleIndicator indicator = (CircleIndicator) findViewById(R.id.indicator);
-        indicator.setViewPager(vpPager);
-
+        //버튼
         ibtn1 = (ImageButton) findViewById(R.id.cafe);
         ibtn2 = (ImageButton) findViewById(R.id.restaurant);
         ibtn3 = (ImageButton) findViewById(R.id.hospital);
@@ -137,6 +156,28 @@ public class Bus_main extends AppCompatActivity
 
             checkRunTimePermission();
         }
+
+        //뷰페이저 부분
+        ViewPager vpPager = (ViewPager) findViewById(R.id.vpPager);
+        adapterViewPager = new MyPagerAdapter(getSupportFragmentManager());
+        vpPager.setAdapter(adapterViewPager);
+
+        CircleIndicator indicator = (CircleIndicator) findViewById(R.id.indicator);
+        indicator.setViewPager(vpPager);
+
+        //내주변 버스 정보
+        StrictMode.enableDefaults();
+        busData();
+
+        //데이터 자르기
+        bdata = data.split("#");
+
+        for(int i=0 ; i<bdata.length ; i++)
+        {
+            System.out.println("bdata["+i+"] : "+bdata[i]);
+        }
+        //onCurrentLocationUpdate(); ???
+        System.out.println("@@@x : "+ x+ "y : "+y);
     }
 
     @Override
@@ -585,4 +626,81 @@ public class Bus_main extends AppCompatActivity
         startActivityForResult(intent, 1000);
     }
     */
+
+
+    //주변 버스 정보 api 조회 및 저장 메소드
+    public void busData(){
+        StringBuffer buffer = new StringBuffer();
+        String busst = null, busx = null, busy=null, busdt = null;
+        int check = 0;
+        //String queryUrl = "http://openapi.gbis.go.kr/ws/rest/busstationservice/searcharound?serviceKey=xai6s9wk7CVjmtsSCDrv1%2BNEj11WClzz%2FfEUE7rSXDoYo%2Bj%2BmergaU9GzMabdOFNDDgeFZIsVPw4LscETN2aDg%3D%3D&x="+x+"&y="+y;
+        String queryUrl = "http://openapi.gbis.go.kr/ws/rest/busstationservice/searcharound?serviceKey=xai6s9wk7CVjmtsSCDrv1%2BNEj11WClzz%2FfEUE7rSXDoYo%2Bj%2BmergaU9GzMabdOFNDDgeFZIsVPw4LscETN2aDg%3D%3D&x=127.10989&y=37.03808";
+        try {
+
+            URL url= new URL(queryUrl);//문자열로 된 요청 url을 URL 객체로 생성.
+            InputStream  is = url.openStream(); //url위치로 입력스트림 연결
+
+
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+
+            XmlPullParserFactory factory= XmlPullParserFactory.newInstance();
+            XmlPullParser parser = factory.newPullParser();
+            parser.setInput(rd); //inputstream 으로부터 xml 입력받기
+
+            String tag;
+
+            parser.next();
+            int eventType = parser.getEventType();
+            while( eventType != XmlPullParser.END_DOCUMENT ){
+                switch( eventType ){
+                    case XmlPullParser.START_DOCUMENT:
+                        break;
+
+                    case XmlPullParser.START_TAG:
+                        tag= parser.getName();//태그 이름 얻어오기
+                        if(tag.equals("busStationAroundList")) ;// 첫번째 검색결과
+                        else if(tag.equals("stationName")) {
+                            parser.next();
+                            busst=parser.getText();
+                        }
+                        else if(tag.equals("x")) {
+                            parser.next();
+                            busx=parser.getText();
+                        }
+                        else if(tag.equals("y")) {
+                            parser.next();
+                            busy=parser.getText();
+                        }
+                        else if(tag.equals("distance")) {
+                            parser.next();
+                            busdt=parser.getText();
+                        }
+                        else
+                            parser.next();
+                        break;
+
+                    case XmlPullParser.TEXT:
+                        break;
+
+                    case XmlPullParser.END_TAG:
+                        tag= parser.getName(); //태그 이름 얻어오기
+
+                        if(tag.equals("busStationAroundList")) { // 첫번째 검색결과종료..줄바꿈
+                            if(check==0) {
+                                data = busst + "/" + busdt + "m/" + busx + "/" + busy + "/#";
+                                check++;
+                            }
+                            else
+                                data += busst + "/" + busdt + "m/" + busx + "/" + busy + "/#";
+                        }
+                        break;
+                }
+                eventType= parser.next();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

@@ -36,14 +36,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="10dp"/>
         </LinearLayout>
-<!--버스 full로 가는 버튼인데 수정중이라..주석처리
-        <Button
-            android:id="@+id/btn_move"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:text="Full>>"
-            android:textColor="#e2e2e2"
-            android:background="#00ff0000" />-->
         <LinearLayout
             android:id="@+id/map_view1"
             android:layout_width="match_parent"
