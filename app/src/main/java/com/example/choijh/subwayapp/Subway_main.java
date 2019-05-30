@@ -8,8 +8,11 @@ import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -50,6 +53,10 @@ import com.kakao.message.template.TextTemplate;
 import com.kakao.network.ErrorResult;
 import com.kakao.network.callback.ResponseCallback;
 import com.kakao.util.helper.log.Logger;
+import com.odsay.odsayandroidsdk.API;
+import com.odsay.odsayandroidsdk.ODsayData;
+import com.odsay.odsayandroidsdk.ODsayService;
+import com.odsay.odsayandroidsdk.OnResultCallbackListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -72,6 +79,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import com.odsay.odsayandroidsdk.API;
+import com.odsay.odsayandroidsdk.ODsayData;
+import com.odsay.odsayandroidsdk.ODsayService;
+import com.odsay.odsayandroidsdk.OnResultCallbackListener;
 
 
 public class Subway_main extends AppCompatActivity
@@ -82,12 +93,13 @@ public class Subway_main extends AppCompatActivity
     private ViewPager mViewPager;//탭레이아웃
     static int pos = 0;
     ArrayList<String[]> station_DB_name;
+    String gpsX;
+    String gpsY;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         BigImageViewer.initialize(GlideImageLoader.with(getApplicationContext()));
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_subway_main);
 
@@ -162,7 +174,9 @@ public class Subway_main extends AppCompatActivity
         });
 
         //GPS 좌표
-        LocationManager lc = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        //LocationManager 생성
+        LocationManager locationmanager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        //사용할 GPS Provider
         String provider = LocationManager.GPS_PROVIDER;
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -174,24 +188,56 @@ public class Subway_main extends AppCompatActivity
             // for Activity#requestPermissions for more details.
             return;
         }
-        Location location = lc.getLastKnownLocation(provider);
-        showGPS(location);
+        Location location = locationmanager.getLastKnownLocation(provider);
+        showGPS(location);//GPS 좌표 찾는 함수
+
+        ODsayService odsayService = ODsayService.init(getApplicationContext(), "hdKe/5bDLhm0/zzg6Y2kUqPZy8hL2buzyMpDLGyAH/Y");
+        // 서버 연결 제한 시간(단위(초), default : 5초)
+        odsayService.setReadTimeout(5000);
+        // 데이터 획득 제한 시간(단위(초), default : 5초)
+        odsayService.setConnectionTimeout(5000);
+
+        // API 호출
+        odsayService.requestPointSearch(gpsY,gpsX,"2000","2",onResultCallbackListener);
+
         System.out.println("onCreate 종료");
     }
+
+    // 콜백 함수 구현
+    OnResultCallbackListener onResultCallbackListener = new OnResultCallbackListener() {
+        // 호출 성공 시 실행
+        @Override
+        public void onSuccess(ODsayData odsayData, API api) {
+            try {
+                System.out.println("실행됨1");
+                if (api == API.POINT_SEARCH) {
+                    System.out.println("실행됨2");
+                    String station = odsayData.getJson().getJSONObject("result").getJSONArray("station").getJSONObject(0).getString("stationName");
+                    Toast.makeText (getApplicationContext(), station, Toast.LENGTH_LONG).show();
+                    System.out.println("실행 지하철명 " + station);
+                }
+            }catch (JSONException e) {
+                e.printStackTrace();
+                System.out.println("실행에러 트레이스");
+            }
+        }
+        // 호출 실패 시 실행
+        @Override
+        public void onError(int i, String s, API api) {
+            if (api == API.POINT_SEARCH) {System.out.println("실행에러");}
+        }
+    };
+
     private void showGPS(Location location) {
         if (location != null) {
-            String x = "" + location.getLatitude();
-            String y = "" + location.getLongitude();
-//            Toast.makeText(getApplicationContext(), str, Toast.LENGTH_LONG).show();
-            System.out.println("좌표 x, y : " + x + " , " + y);
-
+            gpsX = "" + location.getLatitude();
+            gpsY = "" + location.getLongitude();
+            System.out.println("좌표 x, y : " + gpsX + " , " + gpsY);
         }
     }
 
     private ArrayList<String[]> getFavoriteDBname(Context context) {//이거 지금 두개
         ArrayList<String[]> codes = new ArrayList<>();
-//        for(int i = 0; i < 2 ; i++)
-//            tmp [i] = new String ();
         DBOpenHelper help = new DBOpenHelper(context);
         help.open();
         Cursor search_cursor = help.selectFavorite();
@@ -226,8 +272,6 @@ public class Subway_main extends AppCompatActivity
         Intent intent = new Intent(Subway_main.this, Subway_fullScreen.class);
         startActivity(intent);
     }
-
-
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);

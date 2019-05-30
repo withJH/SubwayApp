@@ -43,5 +43,6 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
     implementation 'com.github.piasy:BigImageViewer:1.5.7'//이미지VS
     implementation 'com.github.piasy:GlideImageLoader:1.5.7'
+    implementation project(path: ':SDK_release_v1.0')
 
 }
