@@ -71,6 +71,11 @@ public class DBOpenHelper {
         return mDB.query(DataBases.StationCreateDB._TABLENAME, null, null, null, null, null, null);
     }
 
+//    Favorite 인 항목들만 Select 한다. ( 조건 1일 경우 )
+    public Cursor selectFavorite(){
+        return mDB.rawQuery("SELECT * FROM " + DataBases.StationCreateDB._TABLENAME + " WHERE " + DataBases.StationCreateDB.FAVORITE + " = 1", null);
+    }
+
     public boolean confirmTable(){ // 테이블 유무 확인
         Cursor cursor = mDB.rawQuery("SELECT * FROM 'Station_info'", null);
         cursor.moveToFirst();

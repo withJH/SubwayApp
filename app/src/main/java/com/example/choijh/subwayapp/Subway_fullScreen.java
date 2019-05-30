@@ -4,10 +4,8 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.caverock.androidsvg.SVG;
 
 public class Subway_fullScreen extends AppCompatActivity {
-    SVG f_svg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
