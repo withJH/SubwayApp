@@ -438,6 +438,7 @@ public class Bus_main extends AppCompatActivity
         Log.i(LOG_TAG, String.format("MapView onCurrentLocationUpdate (%f,%f) accuracy (%f)", mapPointGeo.latitude, mapPointGeo.longitude, accuracyInMeters));
         x =  String.valueOf(mapPointGeo.longitude);
         y = String.valueOf(mapPointGeo.latitude);
+//        System.out.println("좌표 x, y : " + x + " , " + y);
     }
 
 
