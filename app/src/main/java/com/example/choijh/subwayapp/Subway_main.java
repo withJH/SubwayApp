@@ -175,7 +175,7 @@ public class Subway_main extends AppCompatActivity
 
         //GPS 좌표
         //LocationManager 생성
-        LocationManager locationmanager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+       /* LocationManager locationmanager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         //사용할 GPS Provider
         String provider = LocationManager.GPS_PROVIDER;
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -200,7 +200,7 @@ public class Subway_main extends AppCompatActivity
         // API 호출
         odsayService.requestPointSearch(gpsY,gpsX,"2000","2",onResultCallbackListener);
 
-        System.out.println("onCreate 종료");
+        System.out.println("onCreate 종료");*/
     }
 
     // 콜백 함수 구현
