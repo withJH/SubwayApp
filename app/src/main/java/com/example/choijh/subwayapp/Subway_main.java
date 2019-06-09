@@ -6,13 +6,12 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.content.res.AssetManager;
 import android.database.Cursor;
-import android.graphics.Color;
-import android.location.Criteria;
+import android.graphics.Point;
+import android.graphics.PointF;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,11 +22,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,7 +39,6 @@ import androidx.viewpager.widget.ViewPager;
 import com.amitshekhar.DebugDB;
 import com.github.piasy.biv.BigImageViewer;
 import com.github.piasy.biv.loader.glide.GlideImageLoader;
-import com.github.piasy.biv.view.BigImageView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
@@ -68,8 +64,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -79,11 +73,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import com.odsay.odsayandroidsdk.API;
-import com.odsay.odsayandroidsdk.ODsayData;
-import com.odsay.odsayandroidsdk.ODsayService;
-import com.odsay.odsayandroidsdk.OnResultCallbackListener;
-
 
 public class Subway_main extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -95,6 +84,12 @@ public class Subway_main extends AppCompatActivity
     ArrayList<String[]> station_DB_name;
     String gpsX;
     String gpsY;
+    HashMap<String, PointF> stations = null;
+//    String gpsStation = null;
+//    String imageX = null;
+//    String imageY = null;
+
+    private com.github.piasy.biv.view.BigImageView mBigImageView;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -103,6 +98,22 @@ public class Subway_main extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_subway_main);
 
+        stations = findStationXML();
+        // 역, PointF HashMap 생성
+
+        //ODsay 설정
+        ODsayService odsayService = ODsayService.init(getApplicationContext(), "hdKe/5bDLhm0/zzg6Y2kUqPZy8hL2buzyMpDLGyAH/Y");
+        odsayService.setReadTimeout(5000);
+        odsayService.setConnectionTimeout(5000);
+        //GPS 좌표
+        LocationManager locationmanager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        String provider = LocationManager.GPS_PROVIDER;
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        Location location = locationmanager.getLastKnownLocation(provider);
+
+        //툴바
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false); //원래 툴바 타이틀(제목)없애줌
@@ -130,9 +141,20 @@ public class Subway_main extends AppCompatActivity
         getInfoFromAPI();
         DebugDB.getAddressLog();
 
-        BigImageView bigImageView = (BigImageView) findViewById(R.id.sub_map);
-        bigImageView.showImage(Uri.parse("file:///android_asset/subway_map.png"));
+        //GPS 좌표 찾는 함수
+        showGPS(location);
+        //반경내의 지하철 역 찾기
+        odsayService.requestPointSearch(gpsY, gpsX, "2000", "2", onResultCallbackListener);
 
+        mBigImageView = (com.github.piasy.biv.view.BigImageView) findViewById(R.id.sub_map);
+        mBigImageView.showImage(Uri.parse("file:///android_asset/subway_map.png"));
+        mBigImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {//fullscreen으로 이동
+                Intent intent = new Intent(Subway_main.this, Subway_fullScreen.class);
+                startActivity(intent);
+            }
+        });
 
         station_DB_name = getFavoriteDBname(getApplicationContext());
 
@@ -155,52 +177,79 @@ public class Subway_main extends AppCompatActivity
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));//변화가 생겼을때
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager) {//탭이 바뀔때
             @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                //다른 탭을 클릭시
-//                tab.setSelectedTabIndicator();
+            public void onTabSelected(TabLayout.Tab tab) {//다른 탭을 클릭시
                 mViewPager.setCurrentItem(tab.getPosition());
             }
 
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-                //지금 탭을 클릭시
+            public void onTabReselected(TabLayout.Tab tab) {//지금 탭을 클릭시
 //                if (tab.getPosition() > Subway_main.tabsize)
                 Toast.makeText(getApplicationContext(), "지금 탭 상세정보로 이동", Toast.LENGTH_LONG).show();
             }
 
-            public void onTabUnselected(TabLayout.Tab tab) {
-                //현재 탭에서 다른 탭으로 이동시 이전 탭에 영향을 주는 식
+            public void onTabUnselected(TabLayout.Tab tab) {//현재 탭에서 다른 탭으로 이동시 이전 탭에 영향을 주는 식
             }
         });
 
-        //GPS 좌표
-        //LocationManager 생성
-       /* LocationManager locationmanager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        //사용할 GPS Provider
-        String provider = LocationManager.GPS_PROVIDER;
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    Activity#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for Activity#requestPermissions for more details.
-            return;
+
+        System.out.println("onCreate 종료");
+    }
+
+    public HashMap<String, PointF> findStationXML() {
+        HashMap<String, PointF> stations = new HashMap<>();
+        boolean isTextPart = false;
+        String text;
+        String xy = "";
+        AssetManager am = getResources().getAssets();
+        InputStream is;
+        try {
+            // XML 파일 스트림 열기
+            is = am.open("subway_linemap.svg");
+
+            // XML 파서 초기화
+            XmlPullParserFactory parserFactory = XmlPullParserFactory.newInstance();
+            XmlPullParser parser = parserFactory.newPullParser();
+
+            // XML 파서에 파일 스트림 지정.
+            parser.setInput(is, "UTF-8");
+
+            int parserEvent = parser.getEventType();
+            while (parserEvent != XmlPullParser.END_DOCUMENT) {
+                switch (parserEvent) {
+                    case XmlPullParser.START_TAG:
+                        if (parser.getName().equals("text")) {
+                            isTextPart = true;
+                            xy = parser.getAttributeValue(0);
+                            break;
+                        } else {
+                            break;
+                        }
+                    case XmlPullParser.TEXT: //parser가 내용에 접근했을때
+                        if (isTextPart) {
+                            text = parser.getText();
+//                            if (text.equals(gpsStation)) {
+                            String[] data = xy.split(" ");
+                            float imageX = Float.parseFloat(data[4]);
+                            float imageY = Float.parseFloat(data[5].substring(0, data[5].length() - 1));
+                            stations.put(text, new PointF(imageX, imageY));
+//                            }
+                            isTextPart = false;
+                            break;
+                        } else {
+                            break;
+                        }
+                    case XmlPullParser.END_TAG: //parser가 종료태그 만났을 때
+                        break;
+                }
+                parserEvent = parser.next();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("파싱 결과 에러 2");
         }
-        Location location = locationmanager.getLastKnownLocation(provider);
-        showGPS(location);//GPS 좌표 찾는 함수
-
-        ODsayService odsayService = ODsayService.init(getApplicationContext(), "hdKe/5bDLhm0/zzg6Y2kUqPZy8hL2buzyMpDLGyAH/Y");
-        // 서버 연결 제한 시간(단위(초), default : 5초)
-        odsayService.setReadTimeout(5000);
-        // 데이터 획득 제한 시간(단위(초), default : 5초)
-        odsayService.setConnectionTimeout(5000);
-
-        // API 호출
-        odsayService.requestPointSearch(gpsY,gpsX,"2000","2",onResultCallbackListener);
-
-        System.out.println("onCreate 종료");*/
+        Log.d("findStationsXML", "Count = " + stations.size());
+        return stations;
     }
 
     // 콜백 함수 구현
@@ -208,23 +257,33 @@ public class Subway_main extends AppCompatActivity
         // 호출 성공 시 실행
         @Override
         public void onSuccess(ODsayData odsayData, API api) {
+//            String gpsStation;
+            Object gpsStation;
             try {
-                System.out.println("실행됨1");
                 if (api == API.POINT_SEARCH) {
-                    System.out.println("실행됨2");
-                    String station = odsayData.getJson().getJSONObject("result").getJSONArray("station").getJSONObject(0).getString("stationName");
-                    Toast.makeText (getApplicationContext(), station, Toast.LENGTH_LONG).show();
-                    System.out.println("실행 지하철명 " + station);
+                    if(odsayData.getJson().getJSONObject("result").getJSONArray("station").length() != 0)
+                        gpsStation = odsayData.getJson().getJSONObject("result").getJSONArray("station").getJSONObject(0).getString("stationName");
+                    else
+                        gpsStation = "종로3가";
+                    if (stations != null) {
+                        PointF stationPos = stations.get(gpsStation);
+                        if (stationPos != null) {
+                            mBigImageView.getSSIV().setScaleAndCenter(1.5f, stationPos);
+                        }
+                    }
                 }
-            }catch (JSONException e) {
+
+            } catch (JSONException e) {
                 e.printStackTrace();
-                System.out.println("실행에러 트레이스");
             }
         }
+
         // 호출 실패 시 실행
         @Override
         public void onError(int i, String s, API api) {
-            if (api == API.POINT_SEARCH) {System.out.println("실행에러");}
+            if (api == API.POINT_SEARCH) {
+                System.out.println("실행에러");
+            }
         }
     };
 
@@ -243,7 +302,7 @@ public class Subway_main extends AppCompatActivity
         Cursor search_cursor = help.selectFavorite();
         try {
             while (search_cursor.moveToNext()) {
-                String [] tmp = new String [2];
+                String[] tmp = new String[2];
                 String code = search_cursor.getString(search_cursor.getColumnIndex("station_code"));
                 String name = search_cursor.getString(search_cursor.getColumnIndex("station_name"));
                 String line = search_cursor.getString(search_cursor.getColumnIndex("station_line"));
@@ -272,6 +331,7 @@ public class Subway_main extends AppCompatActivity
         Intent intent = new Intent(Subway_main.this, Subway_fullScreen.class);
         startActivity(intent);
     }
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -490,17 +550,7 @@ public class Subway_main extends AppCompatActivity
         }
     }
 
-    //탭레이아웃 시작
-
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
     public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
         private static final String ARG_SECTION_NUMBER = "section_number";
         TextView textView1;
         TextView textView2;
@@ -514,7 +564,6 @@ public class Subway_main extends AppCompatActivity
         String station_up_time;
         String station_dn_name;
         String station_dn_time;
-        String subwayName;
 
         public PlaceholderFragment() {
         }
@@ -527,7 +576,6 @@ public class Subway_main extends AppCompatActivity
             fragment.setArguments(args);
             return fragment;
         }
-
         @Override//뷰레이아웃안에 내용부분에 영향을 끼치는 부분
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_content_subway_main_arrival, container, false);
@@ -538,7 +586,6 @@ public class Subway_main extends AppCompatActivity
             textView4 = (TextView) rootView.findViewById(R.id.main_view_dn_time);
             return rootView;
         }
-
         @Override
         public void onResume() {
             super.onResume();
@@ -559,15 +606,12 @@ public class Subway_main extends AppCompatActivity
             super.onPause();
         }
 
-
         private JSONObject inputStreamToJsonObject(InputStream inputStreamObject) throws IOException, JSONException {
             BufferedReader streamReader = new BufferedReader(new InputStreamReader(inputStreamObject, "UTF-8"));
             StringBuilder responseStrBuilder = new StringBuilder();
-
             String inputStr;
             while ((inputStr = streamReader.readLine()) != null)
                 responseStrBuilder.append(inputStr);
-
             try {
                 inputStreamObject.close();
             } catch (Exception ignored) {
@@ -590,20 +634,12 @@ public class Subway_main extends AppCompatActivity
                     station_up_time = "";
                     station_dn_name = "";
                     station_dn_time = "";
-//                    subwayName = "";
-                    //해야할 일
-                    //나중에 해야할 일
-                    //1. 디비 받아서 호선별 색 이미지 달라지게 다른 색상의 이미지 추가
-                    //   호선별로 다른 색으로 바뀌게 하기
-                    //2. 출발지 임의로 하지 않고 즐겨찾기에서 코드로 받아서 하기 ex)병점 => 1716
                     try {
-//                    URL url = new URL("http://openapi.seoul.go.kr:8088/684a69417161726133346d716f4771/xml/SearchArrivalTimeOfLine2SubwayByIDService/1/5/1716/2/2");
                         String week_code = getWeekCode();
                         URL url_up = new URL("http://openapi.seoul.go.kr:8088/" + key + "/json/SearchArrivalTimeOfLine2SubwayByIDService/1/5/"
                                 + station_code + "/" + station_up + "/" + week_code);
                         URL url_dn = new URL("http://openapi.seoul.go.kr:8088/" + key + "/json/SearchArrivalTimeOfLine2SubwayByIDService/1/5/"
                                 + station_code + "/" + station_dn + "/" + week_code);
-
                         System.out.println("상행선 파싱 시작");
                         JSONObject upDownArray[] = {inputStreamToJsonObject(url_up.openStream()), inputStreamToJsonObject(url_dn.openStream())};
                         for (int idx = 0; idx < upDownArray.length; idx++) {
@@ -648,15 +684,12 @@ public class Subway_main extends AppCompatActivity
                                             station_dn_time = station_dn_time + arrival_times + "분 후\n";
                                         }
                                     }
-
                                     if (updownArray.length() == (i + 1)) {
                                         break;
                                     }
                                 }
                             }
                         }
-//                        System.out.println("파싱 이름 " + station_up_name + " 시간 " + station_up_time);
-
                         // UI 스레드에서 작업해야되므로
                         textView1.post(new Runnable() {
                             @Override
@@ -665,14 +698,11 @@ public class Subway_main extends AppCompatActivity
                                 textView2.setText(station_up_time);
                                 textView3.setText(station_dn_name);
                                 textView4.setText(station_dn_time);
-//                                button1.setText(subwayName);
                             }
                         });
                     } catch (Exception e) {
-                        System.out.println("파싱 에러");
                         e.printStackTrace();
                     }
-                    System.out.println("도착시간 파싱 끝");
                 }
             }.start();
         }
