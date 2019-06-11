@@ -25,6 +25,12 @@ public class BusNearbySecondFragment extends Fragment {
     String busnamelist; //id에 따른 버스 이름들
     String routeidlist;
     String staorderlist;
+    String data; //버스 정류장 이름 + 거리m
+    String[] bdata;
+    String stationID; //정류장ID
+    public  String id[]; //정류장 ID 토큰 자른것
+    public String xx;
+    public String yy;
     public BusNearbySecondFragment() {
     }
 
@@ -52,7 +58,7 @@ public class BusNearbySecondFragment extends Fragment {
 
         //내주변 버스 정보
         StrictMode.enableDefaults();
-
+/*
         String a =((BusNearbyFirstFragment)BusNearbyFirstFragment.mBusnear).data; //버스정류장이름+거리
         String b =((BusNearbyFirstFragment)BusNearbyFirstFragment.mBusnear).stationID; //정류장ID
 
@@ -88,7 +94,54 @@ public class BusNearbySecondFragment extends Fragment {
                         adapter.addVO(stdlist[0], buslist[j], info[0], info[1]);
                     }
                 }
+            }*/
+        xx = ((Bus_main)Bus_main.mBusmain).x;
+        yy = ((Bus_main)Bus_main.mBusmain).y;
+        busStationNear(xx, yy);
+
+        String stdlist[];
+        String buslist[];
+        String slist[];
+        String rlist[];
+        String tmp;
+        String info[]=null;
+
+        try {
+            //버스정류장이름+거리 리스트 데이터 자르기
+            bdata = data.split("#");
+            //정류장ID 데이터 자르기
+            id = stationID.split("/");
+            for (int i = 0; i < bdata.length; i++) {
+                System.out.println("bdata[" + i + "] : " + bdata[i]);
+                stdlist = bdata[i].split("/");
+                //주변 버스 리스트 출력(test)
+                busNear(id[i]);
+                if(busnamelist==null)continue;
+                else {
+                    System.out.println("버스들@" + busnamelist);
+                    buslist = busnamelist.split("/");
+                    slist = staorderlist.split("/");
+                    rlist = routeidlist.split("/");
+                    for (int j = 0; j < buslist.length; j++) {
+                        tmp = busInfo(id[i], rlist[j], slist[j]);
+                        System.out.println("staaaaaa: "+staorderlist);
+                        System.out.println("staaaaaa: "+slist[j]);
+                        System.out.println("routeeeee: "+routeidlist);
+                        System.out.println("routeeeee: "+rlist[j]);
+                        System.out.println("정보 :: "+tmp);
+                        //info= tmp.split("/");
+                        info = "안녕/하쇼/".split("/");
+                        //adapter를 통한 값 전달
+                        if(tmp ==null)
+                            adapter.addVO(stdlist[0], buslist[j], "버스가", "없습니다");
+                        else
+                            adapter.addVO(stdlist[0], buslist[j], info[0], info[1]);
+                    }
+                }
             }
+        }catch (Exception e){
+            System.out.println(e);
+        }
 
         return view;
     }
@@ -237,5 +290,78 @@ public class BusNearbySecondFragment extends Fragment {
             e.printStackTrace();
         }
         return returnlist;
+    }
+
+    //주변 버스 정보 api 조회 및 저장 메소드(정류장 이름, 거리)
+    public void busStationNear(String x, String y){
+        StringBuffer buffer = new StringBuffer();
+        String busst = null, busdt = null, stid = null;
+        int check = 0;
+        String queryUrl = "http://openapi.gbis.go.kr/ws/rest/busstationservice/searcharound?serviceKey=xai6s9wk7CVjmtsSCDrv1%2BNEj11WClzz%2FfEUE7rSXDoYo%2Bj%2BmergaU9GzMabdOFNDDgeFZIsVPw4LscETN2aDg%3D%3D&x="+x+"&y="+y;
+        //String queryUrl = "http://openapi.gbis.go.kr/ws/rest/busstationservice/searcharound?serviceKey=xai6s9wk7CVjmtsSCDrv1%2BNEj11WClzz%2FfEUE7rSXDoYo%2Bj%2BmergaU9GzMabdOFNDDgeFZIsVPw4LscETN2aDg%3D%3D&x=127.10989&y=37.03808";
+        try {
+
+            URL url= new URL(queryUrl);//문자열로 된 요청 url을 URL 객체로 생성.
+            InputStream is = url.openStream(); //url위치로 입력스트림 연결
+
+
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+
+            XmlPullParserFactory factory= XmlPullParserFactory.newInstance();
+            XmlPullParser parser = factory.newPullParser();
+            parser.setInput(rd); //inputstream 으로부터 xml 입력받기
+
+            String tag;
+
+            parser.next();
+            int eventType = parser.getEventType();
+            while( eventType != XmlPullParser.END_DOCUMENT ){
+                switch( eventType ){
+                    case XmlPullParser.START_DOCUMENT:
+                        break;
+
+                    case XmlPullParser.START_TAG:
+                        tag= parser.getName();//태그 이름 얻어오기
+                        if(tag.equals("busStationAroundList")) ;// 첫번째 검색결과
+                        else if(tag.equals("stationName")) {
+                            parser.next();
+                            busst=parser.getText();
+                        }
+                        else if(tag.equals("distance")) {
+                            parser.next();
+                            busdt=parser.getText();
+                        }
+                        else if(tag.equals("stationId")) {
+                            parser.next();
+                            stid=parser.getText();
+                        }
+                        else
+                            parser.next();
+                        break;
+
+                    case XmlPullParser.TEXT:
+                        break;
+
+                    case XmlPullParser.END_TAG:
+                        tag= parser.getName(); //태그 이름 얻어오기
+
+                        if(tag.equals("busStationAroundList")) { // 첫번째 검색결과종료..줄바꿈
+                            if(check==0) {
+                                data = busst + "/" + busdt + "m/#";
+                                stationID = stid + "/";
+                                check++;
+                            }
+                            else
+                                data += busst + "/" + busdt + "m/#";
+                            stationID += stid + "/";
+                        }
+                        break;
+                }
+                eventType= parser.next();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
