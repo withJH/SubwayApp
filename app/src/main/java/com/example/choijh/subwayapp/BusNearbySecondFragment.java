@@ -25,6 +25,7 @@ public class BusNearbySecondFragment extends Fragment {
     String busnamelist; //id에 따른 버스 이름들
     String routeidlist;
     String staorderlist;
+    String returnlist;
     String data; //버스 정류장 이름 + 거리m
     String[] bdata;
     String stationID; //정류장ID
@@ -123,16 +124,16 @@ public class BusNearbySecondFragment extends Fragment {
                     slist = staorderlist.split("/");
                     rlist = routeidlist.split("/");
                     for (int j = 0; j < buslist.length; j++) {
-                        tmp = busInfo(id[i], rlist[j], slist[j]);
+                        busInfo(id[i], rlist[j], slist[j]);
                         System.out.println("staaaaaa: "+staorderlist);
-                        System.out.println("staaaaaa: "+slist[j]);
-                        System.out.println("routeeeee: "+routeidlist);
-                        System.out.println("routeeeee: "+rlist[j]);
-                        System.out.println("정보 :: "+tmp);
-                        info= tmp.split("/");
+                        System.out.print("id: "+id[i]);
+                        System.out.print(" slist: "+slist[j]);
+                        System.out.print(" rlist: "+rlist[j]);
+                        System.out.println("정보 :: "+returnlist);
+                        info= returnlist.split("/");
                         //info = "안녕/하쇼/".split("/");
                         //adapter를 통한 값 전달
-                        if(tmp ==null || info ==null)
+                        if(returnlist ==null || info ==null)
                             adapter.addVO(stdlist[0], buslist[j], "버스가", "없습니다");
                         else
                             adapter.addVO(stdlist[0], buslist[j], info[0], info[1]);
@@ -222,12 +223,12 @@ public class BusNearbySecondFragment extends Fragment {
     }
 
     //주변 버스 조회 및 저장 함수
-    public String busInfo(String id, String rid, String s){
+    public void busInfo(String id, String rid, String s){
         StringBuffer buffer = new StringBuffer();
-        String infolist = null,infolist2 = null, returnlist=null;
+        String infolist = null,infolist2 = null;
         int check = 0;
-        String queryUrl = "http://openapi.gbis.go.kr/ws/rest/busarrivalservice?serviceKey=xai6s9wk7CVjmtsSCDrv1%2BNEj11WClzz%2FfEUE7rSXDoYo%2Bj%2BmergaU9GzMabdOFNDDgeFZIsVPw4LscETN2aDg%3D%3D&stationId=" + id+"&routeId="+rid+"&staOrder="+s;
-        //String queryUrl = "http://openapi.gbis.go.kr/ws/rest/busarrivalservice?serviceKey=xai6s9wk7CVjmtsSCDrv1%2BNEj11WClzz%2FfEUE7rSXDoYo%2Bj%2BmergaU9GzMabdOFNDDgeFZIsVPw4LscETN2aDg%3D%3D&stationId=200000194&routeId=200000010&staOrder=132";
+        //String queryUrl = "http://openapi.gbis.go.kr/ws/rest/busarrivalservice?serviceKey=xai6s9wk7CVjmtsSCDrv1%2BNEj11WClzz%2FfEUE7rSXDoYo%2Bj%2BmergaU9GzMabdOFNDDgeFZIsVPw4LscETN2aDg%3D%3D&stationId=" + id+"&routeId="+rid+"&staOrder="+s;
+        String queryUrl = "http://openapi.gbis.go.kr/ws/rest/busarrivalservice?serviceKey=xai6s9wk7CVjmtsSCDrv1%2BNEj11WClzz%2FfEUE7rSXDoYo%2Bj%2BmergaU9GzMabdOFNDDgeFZIsVPw4LscETN2aDg%3D%3D&stationId=200000194&routeId=200000010&staOrder=132";
         try {
 
             URL url= new URL(queryUrl);//문자열로 된 요청 url을 URL 객체로 생성.
@@ -289,7 +290,6 @@ public class BusNearbySecondFragment extends Fragment {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return returnlist;
     }
 
     //주변 버스 정보 api 조회 및 저장 메소드(정류장 이름, 거리)
