@@ -252,7 +252,7 @@ public class BusNearbySecondFragment extends Fragment {
 
                     case XmlPullParser.START_TAG:
                         tag= parser.getName();//태그 이름 얻어오기
-                        if(tag.equals("MsgBody")) ;// 첫번째 검색결과
+                        if(tag.equals("busArrivalItem")) ;// 첫번째 검색결과
                         else if(tag.equals("locationNo1")) {
                             parser.next();
                             infolist=parser.getText();
@@ -271,10 +271,10 @@ public class BusNearbySecondFragment extends Fragment {
                     case XmlPullParser.END_TAG:
                         tag= parser.getName(); //태그 이름 얻어오기
 
-                        if(tag.equals("MsgBody")) { // 첫번째 검색결과종료..줄바꿈
+                        if(tag.equals("busArrivalItem")) { // 첫번째 검색결과종료..줄바꿈
                             if(check==0) {
                                 returnlist = infolist + "정거장 전/";
-                                returnlist = infolist2 + "분 후/";
+                                returnlist += infolist2 + "분 후/";
                                 check++;
                             }
                             else {
