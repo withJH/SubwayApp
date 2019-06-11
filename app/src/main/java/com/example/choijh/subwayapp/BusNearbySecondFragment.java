@@ -129,10 +129,10 @@ public class BusNearbySecondFragment extends Fragment {
                         System.out.println("routeeeee: "+routeidlist);
                         System.out.println("routeeeee: "+rlist[j]);
                         System.out.println("정보 :: "+tmp);
-                        //info= tmp.split("/");
-                        info = "안녕/하쇼/".split("/");
+                        info= tmp.split("/");
+                        //info = "안녕/하쇼/".split("/");
                         //adapter를 통한 값 전달
-                        if(tmp ==null)
+                        if(tmp ==null || info ==null)
                             adapter.addVO(stdlist[0], buslist[j], "버스가", "없습니다");
                         else
                             adapter.addVO(stdlist[0], buslist[j], info[0], info[1]);
