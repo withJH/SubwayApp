@@ -13,17 +13,17 @@
         android:layout_marginRight="10dp">
 
             <TextView
-                android:id="@+id/near_station_name"
+                android:id="@+id/near_station_name2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text=" ∙ 정류장이름"
+                android:text=" ∙ 정류장이 없습니다."
                 android:textSize="15dp"
                 android:layout_weight="2"/>
 
             <TextView
-                android:id="@+id/near_distance"
+                android:id="@+id/near_bus2"
                 android:textSize="12dp"
-                android:text="버스이름(상태구분)"
+                android:text=""
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="8"/>
@@ -32,14 +32,14 @@
             android:layout_height="match_parent"
                 android:orientation="horizontal">
             <TextView
-                android:text="5정류장 전"
+                android:text=""
                 android:id="@+id/near_bus_location"
                 android:layout_weight="5"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
             <TextView
-                android:text="6분 전"
+                android:text=""
                 android:layout_weight="5"
                 android:id="@+id/near_bus_time"
                 android:layout_width="match_parent"

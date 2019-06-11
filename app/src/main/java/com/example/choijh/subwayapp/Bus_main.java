@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 
@@ -17,6 +18,10 @@ import android.util.Log;
 import android.view.View;
 import com.google.android.material.navigation.NavigationView;
 import com.google.gson.annotations.SerializedName;
+import com.odsay.odsayandroidsdk.API;
+import com.odsay.odsayandroidsdk.ODsayData;
+import com.odsay.odsayandroidsdk.ODsayService;
+import com.odsay.odsayandroidsdk.OnResultCallbackListener;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -34,6 +39,7 @@ import androidx.viewpager.widget.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -44,6 +50,9 @@ import net.daum.mf.map.api.MapPoint;
 import net.daum.mf.map.api.MapReverseGeoCoder;
 import net.daum.mf.map.api.MapView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Text;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -92,16 +101,28 @@ public class Bus_main extends AppCompatActivity
     MapView mapView;
     ArrayList<MapPOIItem> marker = new ArrayList<MapPOIItem>();
 
+    ViewPager vpPager;
+
+    Button nearStation;
+
     public static Context mBusmain; //다른데서 여기 함수 쓰기 위해서 만듬
 
     public String data;
 
     public String[] bdata;
 
+    DBOpenHelper help;
+    ArrayList<String> city;
+    String key = "yDr8bTSyDGoN%2Fc3ZVqkeAB%2BUYvzzeu%2BPK2K7YKdkBMxOx7WrCh9j8OlDG2qiWkd7%2F5tLHcYw%2FMoeNhfX66A5eA%3D%3D"; // 노선조회 key
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bus_main);
+
+        help = new DBOpenHelper(getApplicationContext());
+        help.open();
+
         mBusmain = this;
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -154,7 +175,7 @@ public class Bus_main extends AppCompatActivity
         }
 
         //뷰페이저 부분
-        ViewPager vpPager = (ViewPager) findViewById(R.id.vpPager);
+        vpPager = (ViewPager) findViewById(R.id.vpPager);
         adapterViewPager = new MyPagerAdapter(getSupportFragmentManager());
         vpPager.setAdapter(adapterViewPager);
 
@@ -163,10 +184,12 @@ public class Bus_main extends AppCompatActivity
 
         //내주변 버스 정보
         StrictMode.enableDefaults();
-        busData();
+        nearStation = (Button) findViewById(R.id.nearStation);
+        nearStation.setOnClickListener(nearStationListener);
+
 
         //데이터 자르기
-        bdata = data.split("#");
+        /*bdata = data.split("#");
 
         for(int i=0 ; i<bdata.length ; i++)
         {
@@ -174,6 +197,9 @@ public class Bus_main extends AppCompatActivity
         }
         //onCurrentLocationUpdate(); ???
         System.out.println("@@@x : "+ x+ "y : "+y);
+*/
+        //cityCodeAPI();
+        //RouteNoAPI();
     }
 
     @Override
@@ -207,7 +233,8 @@ public class Bus_main extends AppCompatActivity
         }
 
         if (id == R.id.action_bus_gps) {
-            return true;
+            Intent intent = new Intent(Bus_main.this, Bus_nearby.class);
+            startActivityForResult(intent, 1001);
         }
 
         return super.onOptionsItemSelected(item);
@@ -261,10 +288,6 @@ public class Bus_main extends AppCompatActivity
 
             //Intent intent = new Intent(Bus_main.this, common_developer_question.class);
             //startActivityForResult(intent, 1000);
-        }else if (id == R.id.nav_near) {
-            //임시! 내 주변 버스
-            Intent intent = new Intent(Bus_main.this, Bus_nearby.class);
-            startActivityForResult(intent, 1000);
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -621,22 +644,14 @@ public class Bus_main extends AppCompatActivity
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
                 || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
-    /*
-    //버스맵 풀화면으로 이동
-    public void busFullMove(View v){
-        Intent intent = new Intent(Bus_main.this, BusMapFull.class);
-        startActivityForResult(intent, 1000);
-    }
-    */
-
 
     //주변 버스 정보 api 조회 및 저장 메소드
     public void busData(){
         StringBuffer buffer = new StringBuffer();
         String busst = null, busx = null, busy=null, busdt = null;
         int check = 0;
-        //String queryUrl = "http://openapi.gbis.go.kr/ws/rest/busstationservice/searcharound?serviceKey=xai6s9wk7CVjmtsSCDrv1%2BNEj11WClzz%2FfEUE7rSXDoYo%2Bj%2BmergaU9GzMabdOFNDDgeFZIsVPw4LscETN2aDg%3D%3D&x="+x+"&y="+y;
-        String queryUrl = "http://openapi.gbis.go.kr/ws/rest/busstationservice/searcharound?serviceKey=xai6s9wk7CVjmtsSCDrv1%2BNEj11WClzz%2FfEUE7rSXDoYo%2Bj%2BmergaU9GzMabdOFNDDgeFZIsVPw4LscETN2aDg%3D%3D&x=127.10989&y=37.03808";
+        String queryUrl = "http://openapi.gbis.go.kr/ws/rest/busstationservice/searcharound?serviceKey=xai6s9wk7CVjmtsSCDrv1%2BNEj11WClzz%2FfEUE7rSXDoYo%2Bj%2BmergaU9GzMabdOFNDDgeFZIsVPw4LscETN2aDg%3D%3D&x="+x+"&y="+y;
+        //String queryUrl = "http://openapi.gbis.go.kr/ws/rest/busstationservice/searcharound?serviceKey=xai6s9wk7CVjmtsSCDrv1%2BNEj11WClzz%2FfEUE7rSXDoYo%2Bj%2BmergaU9GzMabdOFNDDgeFZIsVPw4LscETN2aDg%3D%3D&x=127.033257&y=37.206906" ;
         try {
 
             URL url= new URL(queryUrl);//문자열로 된 요청 url을 URL 객체로 생성.
@@ -704,5 +719,179 @@ public class Bus_main extends AppCompatActivity
             e.printStackTrace();
         }
     }
+    Button.OnClickListener nearStationListener = new Button.OnClickListener(){
+        public void onClick(View v){
+            try {
+                busData();
+                bdata = data.split("#");
+
+                for (int i = 0; i < bdata.length; i++) {
+                    System.out.println("bdata[" + i + "] : " + bdata[i]);
+                }
+                //onCurrentLocationUpdate(); ???
+                System.out.println("@@@x : " + x + "y : " + y);
+            }catch (Exception e){
+                System.out.println(e);
+            }
+            //뷰페이저 부분
+            vpPager = (ViewPager) findViewById(R.id.vpPager);
+            adapterViewPager = new MyPagerAdapter(getSupportFragmentManager());
+            vpPager.setAdapter(adapterViewPager);
+
+            CircleIndicator indicator = (CircleIndicator) findViewById(R.id.indicator);
+            indicator.setViewPager(vpPager);
+        }
+    };
+
+/*
+    public void cityCodeAPI(){
+        boolean inCD = false, inCN = false;
+        String city_code = null, city_name = null;
+
+        System.out.println("아아");
+        if (!help.City_ConfirmTable()) {
+            System.out.println("아아아");
+            try {
+                URL url = new URL("http://openapi.tago.go.kr/openapi/service/BusRouteInfoInqireService/getCtyCodeList?&ServiceKey=" + key); //검색 URL
+
+                XmlPullParserFactory parserCreator = XmlPullParserFactory.newInstance();
+                XmlPullParser parser = parserCreator.newPullParser();
+
+                parser.setInput(url.openStream(), null);
+
+                int parserEvent = parser.getEventType();
+                System.out.println("도시코드 API 파싱 중...");
+                while (parserEvent != XmlPullParser.END_DOCUMENT) {
+                    switch (parserEvent) {
+                        case XmlPullParser.START_TAG: //parser가 시작 태그를 만나면 실행 ex) <ul>
+                            if (parser.getName().equals("citycode")) {
+                                inCD = true;
+                                break;
+                            } else if (parser.getName().equals("cityname")) {
+                                inCN = true;
+                                break;
+                            } else {
+                                break;
+                            }
+                        case XmlPullParser.TEXT: //parser가 내용에 접근했을때
+                            if (inCD) {
+                                city_code = parser.getText();
+                                inCD = false;
+                                break;
+                            } else if (inCN) {
+                                city_name = parser.getText();
+                                inCN = false;
+                                break;
+                            } else {
+                                break;
+                            }
+                        case XmlPullParser.END_TAG: //parser가 종료태그 만났을 때 ex) </ul>
+                            if (parser.getName().equals("item")) {
+                                help.CityDB_insert(city_code, city_name);
+                            }
+                            break;
+                    }
+                    parserEvent = parser.next();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("아아아아");
+
+    }
+
+    public void RouteNoAPI(){
+        city = getDBFromCityTable();
+        boolean inId = false, inNo = false, inTp = false, inEndNo = false, inStartNo = false;
+        String routeid = null, routeno = null, routetp = null, endnodenm = null, startnodenm = null;
+
+
+        if(!help.Bus_ConfirmTable()){
+            for(int i =0; i<city.size(); i++){
+                try {
+                    URL url = new URL("http://openapi.tago.go.kr/openapi/service/BusRouteInfoInqireService/getRouteNoList?cityCode="+city.get(i)+"&ServiceKey="+key); //검색 URL
+
+                    XmlPullParserFactory parserCreator = XmlPullParserFactory.newInstance();
+                    XmlPullParser parser = parserCreator.newPullParser();
+
+                    parser.setInput(url.openStream(), null);
+
+                    int parserEvent = parser.getEventType();
+                    System.out.println("버스노선 API 파싱 중...");
+                    while (parserEvent != XmlPullParser.END_DOCUMENT) {
+                        switch (parserEvent) {
+                            case XmlPullParser.START_TAG: //parser가 시작 태그를 만나면 실행 ex) <ul>
+                                if (parser.getName().equals("endnodenm")) {
+                                    inEndNo = true;
+                                    break;
+                                }else if(parser.getName().equals("routeid")){
+                                    inId = true;
+                                    break;
+                                }else if(parser.getName().equals("routeno")){
+                                    inNo = true;
+                                    break;
+                                }else if(parser.getName().equals("routetp")){
+                                    inTp = true;
+                                    break;
+                                }else if(parser.getName().equals("startnodenm")){
+                                    inStartNo = true;
+                                    break;
+                                }else{
+                                    break;
+                                }
+                            case XmlPullParser.TEXT: //parser가 내용에 접근했을때
+                                if (inEndNo) {
+                                    endnodenm = parser.getText();
+                                    inEndNo = false;
+                                    break;
+                                } else if(inId) {
+                                    routeid = parser.getText();
+                                    inId = false;
+                                    break;
+                                } else if(inNo) {
+                                    routeno = parser.getText();
+                                    inNo = false;
+                                    break;
+                                } else if(inTp) {
+                                    routetp = parser.getText();
+                                    inTp = false;
+                                    break;
+                                }else if(inStartNo) {
+                                    startnodenm = parser.getText();
+                                    inStartNo = false;
+                                    break;
+                                } else{
+                                    break;
+                                }
+                            case XmlPullParser.END_TAG: //parser가 종료태그 만났을 때 ex) </ul>
+                                if (parser.getName().equals("item")) {
+                                    System.out.println(city.get(i)+"하하하하하");
+                                    help.BusDB_insert(routeid, city.get(i), routeno, routetp, startnodenm, endnodenm, 0);
+                                    //busAdapter.addItem(routeno, routetp, endnodenm, startnodenm, "0");
+                                }
+                                break;
+                        }
+                        parserEvent = parser.next();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }*/
+
+    /*private ArrayList<String> getDBFromCityTable() {
+        ArrayList<String> tmp = new ArrayList<>();
+
+        Cursor search_cursor = help.City_Select();
+        while(search_cursor.moveToNext()){
+            String code = search_cursor.getString(search_cursor.getColumnIndex("city_code"));
+            tmp.add(code);
+        }
+        search_cursor.close();
+
+        return tmp;
+    }*/
 
 }

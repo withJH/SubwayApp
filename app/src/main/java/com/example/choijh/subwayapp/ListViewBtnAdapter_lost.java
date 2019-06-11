@@ -1,6 +1,8 @@
 package com.example.choijh.subwayapp;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +16,8 @@ import java.util.ArrayList;
 
 public class ListViewBtnAdapter_lost extends ArrayAdapter implements View.OnClickListener  {
     // 버튼 클릭 이벤트를 위한 Listener 인터페이스 정의.
+    int pos;
+    private Context context;
     public interface ListBtnClickListener {
         void onListBtnClick(int position) ;
     }
@@ -32,12 +36,13 @@ public class ListViewBtnAdapter_lost extends ArrayAdapter implements View.OnClic
         this.resourceId = resource ;
 
         this.listBtnClickListener = clickListener ;
+        this.context=context;
     }
 
     // 새롭게 만든 Layout을 위한 View를 생성하는 코드
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        final int pos = position ;
+        pos= position ;
         final Context context = parent.getContext();
 
         // 생성자로부터 저장된 resourceId(listview_btn_item)에 해당하는 Layout을 inflate하여 convertView 참조 획득.
@@ -59,7 +64,8 @@ public class ListViewBtnAdapter_lost extends ArrayAdapter implements View.OnClic
         Button button1 = (Button) convertView.findViewById(R.id.button_set);
         button1.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                textTextView.setText(Integer.toString(pos + 1) + "번 아이템 선택."); //전화하게 할 부분
+
+                textTextView.setText(Integer.toString(pos + 1) + "번 아이템 선택.");
             }
         });
 
@@ -74,9 +80,18 @@ public class ListViewBtnAdapter_lost extends ArrayAdapter implements View.OnClic
 
     // button2가 눌려졌을 때 실행되는 onClick함수.(전화할거임)
     public void onClick(View v) {
+        ListViewBtnItem_lost listViewItem = (ListViewBtnItem_lost) getItem(pos);
         // ListBtnClickListener(MainActivity)의 onListBtnClick() 함수 호출.
         if (this.listBtnClickListener != null) {
-            this.listBtnClickListener.onListBtnClick((int)v.getTag()) ;
+          //  this.listBtnClickListener.onListBtnClick((int)v.getTag()) ;
+            try {
+                Intent i = new Intent(Intent.ACTION_DIAL);
+                i.setData(Uri.parse(listViewItem.getText2()));
+                context.startActivity(i);
+                //startActivity(new Intent("android.intent.action.DIAL", Uri.parse(listViewItem.getText2())));
+            }catch (Exception e){
+                System.out.println(e);
+            }
         }
     }
 

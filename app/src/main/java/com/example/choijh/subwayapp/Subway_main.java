@@ -1,8 +1,10 @@
 package com.example.choijh.subwayapp;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
@@ -34,6 +36,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
 
 import com.amitshekhar.DebugDB;
@@ -94,7 +97,6 @@ public class Subway_main extends AppCompatActivity
         BigImageViewer.initialize(GlideImageLoader.with(getApplicationContext()));
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_subway_main);
-
         stations = findStationXML();
         // 역, PointF HashMap 생성
 
@@ -105,9 +107,9 @@ public class Subway_main extends AppCompatActivity
         //GPS 좌표
         LocationManager locationmanager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         String provider = LocationManager.GPS_PROVIDER;
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
+        //if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        //    return;
+        //}
         Location location = locationmanager.getLastKnownLocation(provider);
 
         //툴바
@@ -184,12 +186,6 @@ public class Subway_main extends AppCompatActivity
 
 
         System.out.println("onCreate 종료");
-    }
-
-    private boolean OnClick_POS(MotionEvent event) {
-        float clickX = event.getX();
-        float clickY = event.getX();
-        return true;
     }
 
     public HashMap<String, PointF> findStationXML() {
@@ -797,7 +793,7 @@ public class Subway_main extends AppCompatActivity
                 fragments = new Fragment[codes.size()];
                 for (int i = 0; i < codes.size(); i++) {
                     fragments[i] = Subway_main.PlaceholderFragment.newInstance(i + 1, codes.get(i));
-                   }
+                }
             }
         }
 

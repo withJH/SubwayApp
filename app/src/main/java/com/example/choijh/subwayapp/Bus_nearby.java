@@ -121,10 +121,6 @@ public class Bus_nearby extends AppCompatActivity
 
             //Intent intent = new Intent(Bus_main.this, common_developer_question.class);
             //startActivityForResult(intent, 1000);
-        }else if (id == R.id.nav_near) {
-            //임시! 내 주변 버스
-            Intent intent = new Intent(Bus_nearby.this, Bus_nearby.class);
-            startActivityForResult(intent, 1000);
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout_near);

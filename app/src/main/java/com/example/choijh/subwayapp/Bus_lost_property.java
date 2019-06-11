@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -13,7 +14,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+
+import jxl.Sheet;
+import jxl.Workbook;
+import jxl.read.biff.BiffException;
 
 public class Bus_lost_property extends AppCompatActivity implements ListViewBtnAdapter_lost.ListBtnClickListener{
     TextView text;
@@ -85,17 +92,41 @@ public class Bus_lost_property extends AppCompatActivity implements ListViewBtnA
             list = new ArrayList<ListViewBtnItem_lost>() ;
         }
 
-        // 아이템 생성.
-        item = new ListViewBtnItem_lost() ;
-        item.setText(" 강남버스터미널") ;
-        item.setText2("02-1934-872");
-        list.add(item) ;
+        try {
+            InputStream is = getBaseContext().getResources().getAssets().open("bus_tel.xls");
+            Workbook wb = Workbook.getWorkbook(is);
 
-        item = new ListViewBtnItem_lost() ;
-        item.setText(" 수원버스터미널") ;
-        item.setText2("031-3240-1234");
-        list.add(item) ;
+            if(wb != null) {
+                Sheet sheet = wb.getSheet(0);   // 시트 불러오기
+                if(sheet != null) {
+                    int colTotal = sheet.getColumns();    // 전체 컬럼
+                    int rowIndexStart = 1;                  // row 인덱스 시작
+                    int rowTotal = sheet.getColumn(colTotal-1).length;
 
+                    StringBuilder sb;
+                    for(int row=rowIndexStart;row<rowTotal;row++) {
+                        sb = new StringBuilder();
+                        item = new ListViewBtnItem_lost() ;
+                        for(int col=0;col<colTotal;col++) {
+                            String contents = sheet.getCell(col, row).getContents();
+
+                            if(col==0){
+                                item.setText(contents) ;
+                            }else if(col==1){
+                                item.setText2(contents);
+                            }
+                            sb.append("col"+col+" : "+contents+" , ");
+                        }
+                        Log.i("test", sb.toString());
+                        list.add(item) ;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (BiffException e) {
+            e.printStackTrace();
+        }
         return true ;
     }
 }

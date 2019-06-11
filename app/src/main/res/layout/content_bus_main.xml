@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".Bus_main"
-    tools:showIn="@layout/app_bar_bus_main">
+    tools:showIn="@layout/app_bar_bus_main"
+    android:background="#ffffff">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -40,9 +41,15 @@
             android:id="@+id/map_view1"
             android:layout_width="match_parent"
             android:layout_height="250dp"
-            android:orientation="vertical"
-            android:layout_marginBottom="25dp"/>
-
+            android:orientation="vertical"/>
+        <Button
+            android:id="@+id/nearStation"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:background="#ffb8a8"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="25dp"
+            android:text="정류장"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"

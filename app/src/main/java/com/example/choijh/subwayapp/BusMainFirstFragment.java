@@ -41,8 +41,13 @@ public class BusMainFirstFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_bus_main_first, container, false);
         tv = (TextView)view.findViewById(R.id.fratext1);
-        if(((Bus_main)Bus_main.mBusmain).bdata.length > 0)
-            tv.setText(((Bus_main)Bus_main.mBusmain).bdata[0]);
+        if(((Bus_main)Bus_main.mBusmain).bdata != null) {
+            if (((Bus_main) Bus_main.mBusmain).bdata.length > 0) {
+                String a = ((Bus_main) Bus_main.mBusmain).bdata[0];
+                String[] tmp = a.split("/");
+                tv.setText(tmp[0]+" ("+tmp[1]+")");
+            }
+        }
         return view;
     }
 }

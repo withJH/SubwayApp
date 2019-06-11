@@ -5,7 +5,8 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.CALL_PHONE " />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.DIAL_PHONE" />
 
     <application
         android:allowBackup="true"
@@ -15,6 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".test"></activity>
         <activity android:name=".BusMapFull" />
         <activity android:name=".ListViewMainArrival" />
         <activity android:name=".Bus_nearby" />
@@ -24,6 +26,10 @@
         <activity
             android:name=".common_favorites"
             android:label="@string/title_activity_common_favorites"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Subway_search"
+            android:label="@string/title_activity_subway_search"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".Subway_lost_property" />
         <activity android:name=".common_setting" />
@@ -75,10 +81,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".Subway_search"
-            android:label="@string/title_activity_subway_search"
-            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Subway_detailPage"
             android:label="Subway_detailPage" />
