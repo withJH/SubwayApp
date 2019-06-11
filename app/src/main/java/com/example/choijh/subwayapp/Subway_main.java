@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.content.res.AssetManager;
 import android.database.Cursor;
-import android.graphics.Point;
 import android.graphics.PointF;
 import android.location.Location;
 import android.location.LocationManager;
@@ -20,6 +19,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -85,11 +85,8 @@ public class Subway_main extends AppCompatActivity
     String gpsX;
     String gpsY;
     HashMap<String, PointF> stations = null;
-//    String gpsStation = null;
-//    String imageX = null;
-//    String imageY = null;
-
     private com.github.piasy.biv.view.BigImageView mBigImageView;
+    TextView gpsinfo;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -144,17 +141,10 @@ public class Subway_main extends AppCompatActivity
         //GPS 좌표 찾는 함수
         showGPS(location);
         //반경내의 지하철 역 찾기
-        odsayService.requestPointSearch(gpsY, gpsX, "2000", "2", onResultCallbackListener);
+        odsayService.requestPointSearch(gpsY, gpsX, "5000", "2", onResultCallbackListener);
 
         mBigImageView = (com.github.piasy.biv.view.BigImageView) findViewById(R.id.sub_map);
         mBigImageView.showImage(Uri.parse("file:///android_asset/subway_map.png"));
-        mBigImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {//fullscreen으로 이동
-                Intent intent = new Intent(Subway_main.this, Subway_fullScreen.class);
-                startActivity(intent);
-            }
-        });
 
         station_DB_name = getFavoriteDBname(getApplicationContext());
 
@@ -164,10 +154,12 @@ public class Subway_main extends AppCompatActivity
         TabLayout tabLayout = (TabLayout) findViewById(R.id.main_tabs);
 
         int tabsize = 0;
-        if (tabLayout.getTabCount() > station_DB_name.size())
+        if (tabLayout.getTabCount() > station_DB_name.size()) {
             tabsize = station_DB_name.size();
-        else
+        }
+        else{
             tabsize = tabLayout.getTabCount();
+        }
         for (int i = 0; i < tabsize; ++i) {
             tabLayout.getTabAt(i).setText(station_DB_name.get(i)[0]);//[0]이면 지하철 이름, [1]이면 지하철 호선
         }
@@ -183,7 +175,6 @@ public class Subway_main extends AppCompatActivity
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {//지금 탭을 클릭시
-//                if (tab.getPosition() > Subway_main.tabsize)
                 Toast.makeText(getApplicationContext(), "지금 탭 상세정보로 이동", Toast.LENGTH_LONG).show();
             }
 
@@ -193,6 +184,12 @@ public class Subway_main extends AppCompatActivity
 
 
         System.out.println("onCreate 종료");
+    }
+
+    private boolean OnClick_POS(MotionEvent event) {
+        float clickX = event.getX();
+        float clickY = event.getX();
+        return true;
     }
 
     public HashMap<String, PointF> findStationXML() {
@@ -257,14 +254,26 @@ public class Subway_main extends AppCompatActivity
         // 호출 성공 시 실행
         @Override
         public void onSuccess(ODsayData odsayData, API api) {
-//            String gpsStation;
             Object gpsStation;
             try {
                 if (api == API.POINT_SEARCH) {
-                    if(odsayData.getJson().getJSONObject("result").getJSONArray("station").length() != 0)
-                        gpsStation = odsayData.getJson().getJSONObject("result").getJSONArray("station").getJSONObject(0).getString("stationName");
-                    else
+                    gpsinfo = (TextView) findViewById(R.id.info);
+                    if (odsayData.getJson().getJSONObject("result").getJSONArray("station").length() <= 0) {
                         gpsStation = "종로3가";
+                        gpsinfo.setText("반경 안에 지하철역이 없습니다");
+                    } else {
+                        gpsStation = odsayData.getJson().getJSONObject("result").getJSONArray("station").getJSONObject(0).getString("stationName");
+                        gpsinfo.setText("반경 안에 " + gpsStation + "역이 있습니다");
+                        if(odsayData.getJson().getJSONObject("result").getJSONArray("station").length() > 1){
+                            gpsinfo.setText(gpsinfo.getText() + "\n\n그 외의 가까운 역 : ");
+                            for (int i = 1; i < odsayData.getJson().getJSONObject("result").getJSONArray("station").length(); i++){
+                                gpsinfo.setText(gpsinfo.getText() + odsayData.getJson().getJSONObject("result").getJSONArray("station").getJSONObject(i).getString("stationName") );
+                                if(i < odsayData.getJson().getJSONObject("result").getJSONArray("station").length() - 1 )
+                                    gpsinfo.setText(gpsinfo.getText() + ", ");
+                                else gpsinfo.setText(gpsinfo.getText() + " ");
+                            }
+                        }
+                    }
                     if (stations != null) {
                         PointF stationPos = stations.get(gpsStation);
                         if (stationPos != null) {
@@ -291,8 +300,39 @@ public class Subway_main extends AppCompatActivity
         if (location != null) {
             gpsX = "" + location.getLatitude();
             gpsY = "" + location.getLongitude();
-            System.out.println("좌표 x, y : " + gpsX + " , " + gpsY);
         }
+    }
+
+    private ArrayList<String[]> gettcoorname(Context context) {//이거 지금 두개
+        ArrayList<String[]> codes = new ArrayList<>();
+        DBOpenHelper help = new DBOpenHelper(context);
+        help.open();
+        Cursor search_cursor = help.selectFavorite();
+        try {
+            while (search_cursor.moveToNext()) {
+                String[] tmp = new String[2];
+                String code = search_cursor.getString(search_cursor.getColumnIndex("station_code"));
+                String name = search_cursor.getString(search_cursor.getColumnIndex("station_name"));
+                String line = search_cursor.getString(search_cursor.getColumnIndex("station_line"));
+                String fr = search_cursor.getString(search_cursor.getColumnIndex("station_fr"));
+                String favorite = search_cursor.getString(search_cursor.getColumnIndex("favorite_station"));
+                tmp[0] = name;
+                tmp[1] = line;
+                codes.add(tmp);
+            }
+        } catch (Exception ignored) {
+
+        } finally {
+            try {
+                search_cursor.close();
+            } catch (Exception ignored) {
+            }
+            try {
+                help.close();
+            } catch (Exception ignored) {
+            }
+        }
+        return codes;
     }
 
     private ArrayList<String[]> getFavoriteDBname(Context context) {//이거 지금 두개
@@ -444,7 +484,6 @@ public class Subway_main extends AppCompatActivity
         return true;
     }
 
-
     private void getInfoFromAPI() { // 꼭 네트워크 연결 후 사용(안 하면 안 나옴)
 
         help = new DBOpenHelper(getApplicationContext());
@@ -576,6 +615,7 @@ public class Subway_main extends AppCompatActivity
             fragment.setArguments(args);
             return fragment;
         }
+
         @Override//뷰레이아웃안에 내용부분에 영향을 끼치는 부분
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_content_subway_main_arrival, container, false);
@@ -586,6 +626,7 @@ public class Subway_main extends AppCompatActivity
             textView4 = (TextView) rootView.findViewById(R.id.main_view_dn_time);
             return rootView;
         }
+
         @Override
         public void onResume() {
             super.onResume();
@@ -634,6 +675,11 @@ public class Subway_main extends AppCompatActivity
                     station_up_time = "";
                     station_dn_name = "";
                     station_dn_time = "";
+                    if (station_code==""){
+                        textView1.setText("즐겨찾기");
+                        textView2.setText("없습니다");
+                        return;
+                    }
                     try {
                         String week_code = getWeekCode();
                         URL url_up = new URL("http://openapi.seoul.go.kr:8088/" + key + "/json/SearchArrivalTimeOfLine2SubwayByIDService/1/5/"
@@ -742,9 +788,16 @@ public class Subway_main extends AppCompatActivity
             super(fm);
             this.context = context;
             codes = getFavoriteDB(context);
-            fragments = new Fragment[codes.size()];
-            for (int i = 0; i < codes.size(); i++) {
-                fragments[i] = Subway_main.PlaceholderFragment.newInstance(i + 1, codes.get(i));
+
+            if(codes.size() == 0){
+                fragments = new Fragment[1];
+                fragments[0] = Subway_main.PlaceholderFragment.newInstance(1, "");//즐겨찾기 없음
+            }
+            else {
+                fragments = new Fragment[codes.size()];
+                for (int i = 0; i < codes.size(); i++) {
+                    fragments[i] = Subway_main.PlaceholderFragment.newInstance(i + 1, codes.get(i));
+                   }
             }
         }
 

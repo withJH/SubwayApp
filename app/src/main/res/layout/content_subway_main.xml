@@ -17,6 +17,17 @@
         app:optimizeDisplay="true"
         />
 
+    <TextView
+        android:id="@+id/info"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_margin="10dp"
+        android:background="@drawable/background_border"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:text="aaaaaaaaa"
+        />
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="200dp"

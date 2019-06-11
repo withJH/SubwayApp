@@ -7,9 +7,5 @@
     tools:context=".Subway_fullScreen"
     android:orientation="vertical">
 
-    <com.github.chrisbanes.photoview.PhotoView
-        android:id="@+id/sub_map_fullScreen"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
 
 </LinearLayout>
