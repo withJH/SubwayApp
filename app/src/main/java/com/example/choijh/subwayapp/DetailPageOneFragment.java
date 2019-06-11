@@ -43,8 +43,8 @@ import retrofit2.http.Query;
 
 public class DetailPageOneFragment extends Fragment {
 
-    String STATION_CD = "1716";
-    String STATION_NAME = "병점";
+    String STATION_CD;
+    String STATION_NAME;
 
     String KEY="44714e494967757334386561554557";
     String TYPE ="xml";
@@ -70,6 +70,7 @@ public class DetailPageOneFragment extends Fragment {
 
     TextView text;
     TextView stationInfo;
+    TextView stationName;
 
     MapView mapView;
     ArrayList<MapPOIItem> marker = new ArrayList<MapPOIItem>();
@@ -88,6 +89,7 @@ public class DetailPageOneFragment extends Fragment {
 
 
     public DetailPageOneFragment() {
+
     }
 
     public static DetailPageOneFragment newInstance(int page){
@@ -106,7 +108,22 @@ public class DetailPageOneFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_detail_page_one, container, false);
 
+        //STATION_NAME에 받아온 역 이름 넣기
+        if(getArguments() != null){
+            STATION_NAME = getArguments().getString("station");
+            STATION_CD = getArguments().getString("code");
+        }
+        else{
+            STATION_NAME = "시청";
+            STATION_CD = "0151";
+        }
+
+
         StrictMode.enableDefaults();
+
+        //기준역 이름 설정
+        stationName = v.findViewById(R.id.stationName);
+        stationName.setText(STATION_NAME);
 
         text = (TextView) v.findViewById(R.id.schedule);
         text.setText(data1);

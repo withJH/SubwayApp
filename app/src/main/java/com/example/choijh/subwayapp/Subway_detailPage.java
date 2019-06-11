@@ -18,12 +18,20 @@ import net.daum.mf.map.api.MapPOIItem;
 import net.daum.mf.map.api.MapPoint;
 import net.daum.mf.map.api.MapView;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserFactory;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -40,6 +48,12 @@ public class Subway_detailPage extends AppCompatActivity {
     private ViewPager mViewPager;
     private DetailPagerAdapter mDetailPagerAdapter;
 
+    String STATION_CD;
+
+    Double x;
+    Double y;
+    String STATION_NM;
+
     MapView mapView;
     ArrayList<MapPOIItem> marker = new ArrayList<MapPOIItem>();
 
@@ -48,6 +62,7 @@ public class Subway_detailPage extends AppCompatActivity {
     ImageButton ibtn3;
     ImageButton ibtn4;
     ImageButton ibtn5;
+    InputStream is = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,10 +72,16 @@ public class Subway_detailPage extends AppCompatActivity {
 
         StrictMode.enableDefaults();
 
+        Intent intent = getIntent();
+        STATION_CD = intent.getStringExtra("station");
+        if(STATION_CD != null)
+            getStationLocation(STATION_CD);
+        else
+            getStationLocation("0151");
 
         mapView = new MapView(this);
         mapView.setDaumMapApiKey(" 61d3254080b5d9424b98a292a7984c8e");
-        mapView.setMapCenterPoint(MapPoint.mapPointWithGeoCoord(37.206906, 127.033257), true);
+        mapView.setMapCenterPoint(MapPoint.mapPointWithGeoCoord(x, y), true);
         RelativeLayout map = (RelativeLayout) findViewById(R.id.map_view);
         map.addView(mapView);
 
@@ -76,6 +97,14 @@ public class Subway_detailPage extends AppCompatActivity {
         ibtn5.setOnClickListener(ibtnOnClickListener);
 
 
+        DetailPageOneFragment fragment = new DetailPageOneFragment(); // Fragment 생성
+        DetailPageTwoFragment fragment2 = new DetailPageTwoFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("station", STATION_NM);
+        bundle.putString("code", STATION_CD);// Key, Value
+        fragment.setArguments(bundle);
+        fragment2.setArguments(bundle);
+
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
 
 
@@ -88,9 +117,7 @@ public class Subway_detailPage extends AppCompatActivity {
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
-        //Intent intent = getIntent();
-        //intent.getStringExtra("station_name")
-        //Toast.makeText(Subway_detailPage.this,intent.getStringExtra("station_name"),Toast.LENGTH_LONG).show();
+
 
     }
 
@@ -165,7 +192,7 @@ public class Subway_detailPage extends AppCompatActivity {
 
         apiService api = retrofit.create(apiService.class);
 
-        Call<RestApi> call = api.getApi("KakaoAK 02e90f45782fea188c0f2f655b06b7df", cateroty_gourp_code, "127.033257", "37.206906", 20000);
+        Call<RestApi> call = api.getApi("KakaoAK 02e90f45782fea188c0f2f655b06b7df", cateroty_gourp_code, String.valueOf(y), String.valueOf(x), 20000);
 
         call.enqueue(new Callback<RestApi>() {
             @Override
@@ -207,5 +234,69 @@ public class Subway_detailPage extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "실패", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    void getStationLocation(String STATION_CD){
+
+        String queryUrl = "http://openapi.seoul.go.kr:8088/44714e494967757334386561554557/xml/SearchSTNInfoByIDService/1/1/"+STATION_CD+"/" ;
+
+        try {
+
+            URL url= new URL(queryUrl);//문자열로 된 요청 url을 URL 객체로 생성.
+            is = url.openStream(); //url위치로 입력스트림 연결
+
+
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+
+            XmlPullParserFactory factory= XmlPullParserFactory.newInstance();
+            XmlPullParser parser = factory.newPullParser();
+            parser.setInput(rd); //inputstream 으로부터 xml 입력받기
+
+            String tag;
+
+            parser.next();
+            int eventType = parser.getEventType();
+
+            while( eventType != XmlPullParser.END_DOCUMENT ){
+                switch( eventType ){
+                    case XmlPullParser.START_DOCUMENT:
+                        break;
+
+                    case XmlPullParser.START_TAG:
+                        tag= parser.getName();//태그 이름 얻어오기
+                        if(tag.equals("row")) ;// 첫번째 검색결과
+                        else if(tag.equals("STATION_NM")) {
+                            parser.next();
+                            STATION_NM = parser.getText();
+                        }
+                        else if(tag.equals("XPOINT_WGS")){
+                            parser.next();
+                            x = Double.parseDouble(parser.getText());
+                        }
+                        else if(tag.equals("YPOINT_WGS")){
+                            parser.next();
+                            y = Double.parseDouble(parser.getText());
+                        }
+                        else
+                            parser.next();
+                        break;
+
+                    case XmlPullParser.TEXT:
+                        break;
+
+                    case XmlPullParser.END_TAG:
+                        tag= parser.getName(); //태그 이름 얻어오기
+
+                        if(tag.equals("row"));// 첫번째 검색결과종료..줄바꿈
+
+                        break;
+                }
+
+                eventType= parser.next();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }

@@ -43,7 +43,7 @@ public class Subway_search extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(getApplicationContext(), Subway_detailPage.class);
-                intent.putExtra("station", tmp.get(i).getSubway_name());
+                intent.putExtra("station", tmp.get(i).getSubway_code());
                 startActivity(intent);
             }
         });
