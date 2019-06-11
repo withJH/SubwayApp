@@ -18,7 +18,6 @@
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name=".test"></activity>
         <activity android:name=".BusMapFull" />
-        <activity android:name=".ListViewMainArrival" />
         <activity android:name=".Bus_nearby" />
         <activity android:name=".Bus_lost_property" />
         <activity android:name=".Subway_fullScreen" />
@@ -84,6 +83,7 @@
         <activity
             android:name=".Subway_detailPage"
             android:label="Subway_detailPage" />
+        <activity android:name=".Bus_search"/>
     </application>
 
 </manifest>

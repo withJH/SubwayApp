@@ -57,7 +57,7 @@ public class BusAdapter extends BaseAdapter{
             convertView = inflater.inflate(R.layout.activity_subway_list, parent, false);
         }
 
-        CheckBox favorite_star = (CheckBox) convertView.findViewById(R.id.unfilled_star);
+        CheckBox favorite_star = (CheckBox) convertView.findViewById(R.id.bus_unfilled_star);
         TextView st_code = (TextView) convertView.findViewById(R.id.station_code);
         TextView st_name = (TextView) convertView.findViewById(R.id.station_name);
         ImageView st_line = (ImageView) convertView.findViewById(R.id.station_line);
@@ -69,14 +69,7 @@ public class BusAdapter extends BaseAdapter{
 
             }
         });
-  /*      SubwayItem items = filtered_items.get(position);
 
-        st_code.setText(items.getSubway_code());
-        st_name.setText(items.getSubway_name());
-
-        changedLineImage(items, st_line);
-        //st_frcode.setText(items.getFr_code());
-*/
         return convertView;
     }
 }

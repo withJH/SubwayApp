@@ -49,7 +49,7 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
             convertView = inflater.inflate(R.layout.activity_subway_list, parent, false);
         }
 
-        final CheckBox favorite_star = (CheckBox) convertView.findViewById(R.id.unfilled_star);
+        final CheckBox favorite_star = (CheckBox) convertView.findViewById(R.id.subway_unfilled_star);
         final TextView st_code = (TextView) convertView.findViewById(R.id.station_code);
         final TextView st_name = (TextView) convertView.findViewById(R.id.station_name);
         final ImageView st_line = (ImageView) convertView.findViewById(R.id.station_line);
@@ -71,10 +71,10 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
             public void onClick(View view) {
                 help.open();
                 if(favorite_star.isChecked()){
-                    help.update(st_code.getText().toString(),1);
+                    help.StationDB_update(st_code.getText().toString(),1);
                     //Toast.makeText(context, st_name.getText().toString(), Toast.LENGTH_SHORT).show();
                 }else{
-                    help.update(st_code.getText().toString(),0);
+                    help.StationDB_update(st_code.getText().toString(),0);
                 }
                 help.close();
             }
@@ -150,13 +150,13 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
     public Filter getFilter() {
 
         if (filter == null) {
-            filter = new ListFilter() ;
+            filter = new SubwayListFilter() ;
         }
 
         return filter ;
     }
 
-    private class ListFilter extends Filter {
+    private class SubwayListFilter extends Filter {
 
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
@@ -185,7 +185,7 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
 
-            filtered_items = (ArrayList<SubwayItem>) results.values ;
+            filtered_items = (ArrayList<SubwayItem>) results.values;
 
             if (results.count > 0) {
                 notifyDataSetChanged() ;

@@ -8,6 +8,18 @@ public class SubwayItem {
     private String fr_code;
     private String favorite;
 
+    public SubwayItem(){
+
+    }
+
+    public SubwayItem(String code, String name, String line, String fr, String favorite) {
+        subway_code = code;
+        subway_name = name;
+        this.line = line;
+        fr_code = fr;
+        this.favorite = favorite;
+    }
+
     public String getSubway_code() {
         return subway_code;
     }

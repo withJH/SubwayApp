@@ -99,7 +99,9 @@ public class Subway_main extends AppCompatActivity
         setContentView(R.layout.activity_subway_main);
         stations = findStationXML();
         // 역, PointF HashMap 생성
-
+        help = new DBOpenHelper(getApplicationContext());
+        help.open();
+        help.create();
         //ODsay 설정
         ODsayService odsayService = ODsayService.init(getApplicationContext(), "hdKe/5bDLhm0/zzg6Y2kUqPZy8hL2buzyMpDLGyAH/Y");
         odsayService.setReadTimeout(5000);
@@ -186,6 +188,7 @@ public class Subway_main extends AppCompatActivity
 
 
         System.out.println("onCreate 종료");
+
     }
 
     public HashMap<String, PointF> findStationXML() {
@@ -298,7 +301,7 @@ public class Subway_main extends AppCompatActivity
             gpsY = "" + location.getLongitude();
         }
     }
-
+/*
     private ArrayList<String[]> gettcoorname(Context context) {//이거 지금 두개
         ArrayList<String[]> codes = new ArrayList<>();
         DBOpenHelper help = new DBOpenHelper(context);
@@ -330,12 +333,10 @@ public class Subway_main extends AppCompatActivity
         }
         return codes;
     }
-
+*/
     private ArrayList<String[]> getFavoriteDBname(Context context) {//이거 지금 두개
         ArrayList<String[]> codes = new ArrayList<>();
-        DBOpenHelper help = new DBOpenHelper(context);
-        help.open();
-        Cursor search_cursor = help.selectFavorite();
+        Cursor search_cursor = help.Station_SelectFavorite();
         try {
             while (search_cursor.moveToNext()) {
                 String[] tmp = new String[2];
@@ -356,7 +357,6 @@ public class Subway_main extends AppCompatActivity
             } catch (Exception ignored) {
             }
             try {
-                help.close();
             } catch (Exception ignored) {
             }
         }
@@ -481,12 +481,7 @@ public class Subway_main extends AppCompatActivity
     }
 
     private void getInfoFromAPI() { // 꼭 네트워크 연결 후 사용(안 하면 안 나옴)
-
-        help = new DBOpenHelper(getApplicationContext());
-        help.open();
-        help.create();
-
-        if (!help.confirmTable()) {
+        if (!help.Station_ConfirmTable()) {
             new Thread() {
                 @Override
                 public void run() {
@@ -506,7 +501,6 @@ public class Subway_main extends AppCompatActivity
 
                         int parserEvent = parser.getEventType();
                         System.out.println("지하철역 이름을 통한 검색 API 파싱 중...");
-
                         while (parserEvent != XmlPullParser.END_DOCUMENT) {
                             switch (parserEvent) {
                                 case XmlPullParser.START_TAG: //parser가 시작 태그를 만나면 실행 ex) <ul>
@@ -547,8 +541,7 @@ public class Subway_main extends AppCompatActivity
                                     }
                                 case XmlPullParser.END_TAG: //parser가 종료태그 만났을 때 ex) </ul>
                                     if (parser.getName().equals("row")) {
-                                        //searchAdapter.addItem(station_code, station_nm, line_num, fr_code); // 어댑터에 데이터 삽입
-                                        help.insert(station_code, station_nm, line_num, fr_code, 0);
+                                        help.StationDB_insert(station_code, station_nm, line_num, fr_code, 0);
                                     }
                                     break;
                             }
@@ -557,7 +550,6 @@ public class Subway_main extends AppCompatActivity
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    help.close();
                 }
             }.start();
         }
@@ -810,9 +802,7 @@ public class Subway_main extends AppCompatActivity
 
         private ArrayList<String> getFavoriteDB(Context context) {
             ArrayList<String> codes = new ArrayList<>();
-            DBOpenHelper help = new DBOpenHelper(context);
-            help.open();
-            Cursor search_cursor = help.selectFavorite();
+            Cursor search_cursor = help.Station_SelectFavorite();
             try {
                 while (search_cursor.moveToNext()) {
                     String code = search_cursor.getString(search_cursor.getColumnIndex("station_code"));
@@ -830,7 +820,6 @@ public class Subway_main extends AppCompatActivity
                 } catch (Exception ignored) {
                 }
                 try {
-                    help.close();
                 } catch (Exception ignored) {
                 }
             }

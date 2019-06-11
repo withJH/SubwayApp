@@ -1,8 +1,6 @@
 package com.example.choijh.subwayapp;
 
 import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -15,13 +13,11 @@ import androidx.viewpager.widget.ViewPager;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.ListView;
-import android.widget.TextView;
 
 public class common_favorites extends AppCompatActivity {
 
@@ -86,7 +82,7 @@ public class common_favorites extends AppCompatActivity {
         private static final String ARG_SECTION_NUMBER = "section_number";
         ListView subway_favorite;
         SearchAdapter searchAdapter = new SearchAdapter(); // 어댑터
-
+        DBOpenHelper help;
 
         public PlaceholderFragment() {
         }
@@ -106,31 +102,86 @@ public class common_favorites extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_common_favorites, container, false);
-            subway_favorite = (ListView) rootView.findViewById(R.id.section_label);
+            View rootView = inflater.inflate(R.layout.fragment_common_favorites_subway, container, false);
+            subway_favorite = (ListView) rootView.findViewById(R.id.subway_label);
 
-            getFavoriteDB();
+            help = new DBOpenHelper(getContext());
+            help.open();
+            getFavoriteSubwyaDB();
             return rootView;
         }
 
-        private void getFavoriteDB() {
-            DBOpenHelper help = new DBOpenHelper(getContext());
-            help.open();
+        private void getFavoriteSubwyaDB() {
 
-            Cursor search_cursor = help.selectColumns();
+            Cursor search_cursor = help.Station_SelectFavorite();
             while(search_cursor.moveToNext()){
                 String code = search_cursor.getString(search_cursor.getColumnIndex("station_code"));
                 String name = search_cursor.getString(search_cursor.getColumnIndex("station_name"));
                 String line = search_cursor.getString(search_cursor.getColumnIndex("station_line"));
                 String fr = search_cursor.getString(search_cursor.getColumnIndex("station_fr"));
                 String favorite = search_cursor.getString(search_cursor.getColumnIndex("favorite_station"));
-                if(favorite.equals("1")) {
-                    searchAdapter.addItem(code, name, line, fr, favorite); // 어댑터에 데이터 삽입
-                }
+                searchAdapter.addItem(code, name, line, fr, favorite); // 어댑터에 데이터 삽입
             }
             subway_favorite.setAdapter(searchAdapter); // 리스트뷰에 데이터 올리기
             search_cursor.close();
-            help.close();
+        }
+
+
+    }
+
+    public static class PlaceholderFragment2 extends Fragment {
+        /**
+         * The fragment argument representing the section number for this
+         * fragment.
+         */
+        private static final String ARG_SECTION_NUMBER = "section_number";
+        ListView bus_favorite;
+        SearchAdapter searchAdapter = new SearchAdapter(); // 어댑터
+        DBOpenHelper help;
+
+        public PlaceholderFragment2() {
+        }
+
+        /**
+         * Returns a new instance of this fragment for the given section
+         * number.
+         */
+        public static PlaceholderFragment newInstance(int sectionNumber) {
+            PlaceholderFragment fragment = new PlaceholderFragment();
+            Bundle args = new Bundle();
+            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+            fragment.setArguments(args);
+            return fragment;
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.fragment_common_favorites_bus, container, false);
+            bus_favorite = (ListView)rootView.findViewById(R.id.bus_label);
+
+            help = new DBOpenHelper(getContext());
+            help.open();
+            //getFavoriteSubwyaDB();
+            getFavoriteBusDB();
+            return rootView;
+        }
+
+       private void getFavoriteBusDB(){
+            DBOpenHelper help = new DBOpenHelper(getContext());
+            help.open();
+
+            Cursor search_cursor = help.Bus_SelectFavorite();
+            while(search_cursor.moveToNext()){
+                String code = search_cursor.getString(search_cursor.getColumnIndex("station_code"));
+                String name = search_cursor.getString(search_cursor.getColumnIndex("station_name"));
+                String line = search_cursor.getString(search_cursor.getColumnIndex("station_line"));
+                String fr = search_cursor.getString(search_cursor.getColumnIndex("station_fr"));
+                String favorite = search_cursor.getString(search_cursor.getColumnIndex("favorite_station"));
+                searchAdapter.addItem(code, name, line, fr, favorite); // 어댑터에 데이터 삽입
+            }
+            bus_favorite.setAdapter(searchAdapter); // 리스트뷰에 데이터 올리기
+            search_cursor.close();
         }
     }
 
@@ -146,9 +197,17 @@ public class common_favorites extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
+            switch (position) {
+                case 0:
+                    return PlaceholderFragment.newInstance(position + 1);
+                case 1:
+                    return PlaceholderFragment2.newInstance(position + 1);
+
+            }
+            return null;
+
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
         }
 
         @Override

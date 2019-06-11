@@ -1,6 +1,7 @@
 package com.example.choijh.subwayapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.view.LayoutInflater;
@@ -86,6 +87,11 @@ public class Subway_detailPage extends AppCompatActivity {
 
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
+
+        //Intent intent = getIntent();
+        //intent.getStringExtra("station_name")
+        //Toast.makeText(Subway_detailPage.this,intent.getStringExtra("station_name"),Toast.LENGTH_LONG).show();
+
     }
 
 

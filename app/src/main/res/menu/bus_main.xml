@@ -2,15 +2,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_bus_searchbar"
-        android:orderInCategory="100"
-        android:title="Bus Search"
-        android:icon="@drawable/ic_search"
-        app:showAsAction="always" />
-    <item
         android:id="@+id/action_bus_gps"
         android:orderInCategory="100"
         android:title="Bus GPS"
         android:icon="@drawable/my_gps"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/action_bus_searchbar"
+        android:orderInCategory="100"
+        android:title="Bus Search"
+        android:icon="@drawable/ic_search"
+        app:showAsAction="always" />
+
 </menu>

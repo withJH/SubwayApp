@@ -1,5 +1,6 @@
 package com.example.choijh.subwayapp;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -7,6 +8,7 @@ import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -14,8 +16,14 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+
 public class Subway_search extends AppCompatActivity {
     ListView station_list; // 리스트 뷰
+    ArrayList<SubwayItem> tmp;
     SearchAdapter searchAdapter = new SearchAdapter(); // 어댑터
     SearchView searchView;
     @Override
@@ -31,7 +39,14 @@ public class Subway_search extends AppCompatActivity {
         station_list = (ListView) findViewById(R.id.station_list);
         getDB();
 
-
+        station_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent intent = new Intent(getApplicationContext(), Subway_detailPage.class);
+                intent.putExtra("station", tmp.get(i).getSubway_name());
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -73,20 +88,29 @@ public class Subway_search extends AppCompatActivity {
         DBOpenHelper help = new DBOpenHelper(getApplicationContext());
         help.open();
 
-        Cursor search_cursor = help.selectColumns();
+        tmp = new ArrayList<SubwayItem>();
+        Cursor search_cursor = help.Station_sort();
         while(search_cursor.moveToNext()){
             String code = search_cursor.getString(search_cursor.getColumnIndex("station_code"));
             String name = search_cursor.getString(search_cursor.getColumnIndex("station_name"));
             String line = search_cursor.getString(search_cursor.getColumnIndex("station_line"));
             String fr = search_cursor.getString(search_cursor.getColumnIndex("station_fr"));
             String favorite = search_cursor.getString(search_cursor.getColumnIndex("favorite_station"));
+
             searchAdapter.addItem(code, name, line, fr, favorite); // 어댑터에 데이터 삽입
+            tmp.add(new SubwayItem(code, name, line, fr, favorite));
         }
+
         station_list.setAdapter(searchAdapter); // 리스트뷰에 데이터 올리기
         search_cursor.close();
         help.close();
+
     }
 
 
 }
+
+
+
+
 

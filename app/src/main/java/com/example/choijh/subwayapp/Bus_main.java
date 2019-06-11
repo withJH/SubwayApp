@@ -6,8 +6,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 
 
@@ -18,10 +18,6 @@ import android.util.Log;
 import android.view.View;
 import com.google.android.material.navigation.NavigationView;
 import com.google.gson.annotations.SerializedName;
-import com.odsay.odsayandroidsdk.API;
-import com.odsay.odsayandroidsdk.ODsayData;
-import com.odsay.odsayandroidsdk.ODsayService;
-import com.odsay.odsayandroidsdk.OnResultCallbackListener;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -94,7 +90,7 @@ public class Bus_main extends AppCompatActivity
     private static final String LOG_TAG = "Bus_main";
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
     private static final int PERMISSIONS_REQUEST_CODE = 100;
-    String[] REQUIRED_PERMISSIONS  = {Manifest.permission.ACCESS_FINE_LOCATION};
+    String[] REQUIRED_PERMISSIONS = {Manifest.permission.ACCESS_FINE_LOCATION};
     String x; //x좌표
     String y; //y좌표
 
@@ -170,7 +166,7 @@ public class Bus_main extends AppCompatActivity
 
         if (!checkLocationServicesStatus()) {
             showDialogForLocationServiceSetting();
-        }else {
+        } else {
             checkRunTimePermission();
         }
 
@@ -198,8 +194,8 @@ public class Bus_main extends AppCompatActivity
         //onCurrentLocationUpdate(); ???
         System.out.println("@@@x : "+ x+ "y : "+y);
 */
-        //cityCodeAPI();
-        //RouteNoAPI();
+        cityCodeAPI();
+        RouteNoAPI();
     }
 
     @Override
@@ -274,7 +270,7 @@ public class Bus_main extends AppCompatActivity
                 intent.putExtra(Intent.EXTRA_SUBJECT, "제목");
                 intent.putExtra(Intent.EXTRA_TEXT, "어플 사용시 불편하신 사항이나 문의 내용을 입력해주세요.");
                 intent.setPackage("com.google.android.gm");
-                if(intent.resolveActivity(getPackageManager())!=null)
+                if (intent.resolveActivity(getPackageManager()) != null)
                     startActivity(intent);
                 startActivity(intent);
             } catch (Exception e) {
@@ -336,7 +332,7 @@ public class Bus_main extends AppCompatActivity
     ImageButton.OnClickListener ibtnOnClickListener = new ImageButton.OnClickListener() {
 
         public void onClick(View v) {
-            switch(v.getId()){
+            switch (v.getId()) {
                 case R.id.restaurant:
                     setRestApi("FD6");
                     break;
@@ -396,6 +392,7 @@ public class Bus_main extends AppCompatActivity
             }
         }
     }
+
     public void setRestApi(String cateroty_gourp_code) {
         Retrofit retrofit = new Retrofit.Builder().addConverterFactory(GsonConverterFactory.create())
                 .baseUrl(apiService.base)
@@ -459,7 +456,7 @@ public class Bus_main extends AppCompatActivity
     public void onCurrentLocationUpdate(MapView mapView, MapPoint currentLocation, float accuracyInMeters) {
         MapPoint.GeoCoordinate mapPointGeo = currentLocation.getMapPointGeoCoord();
         Log.i(LOG_TAG, String.format("MapView onCurrentLocationUpdate (%f,%f) accuracy (%f)", mapPointGeo.latitude, mapPointGeo.longitude, accuracyInMeters));
-        x =  String.valueOf(mapPointGeo.longitude);
+        x = String.valueOf(mapPointGeo.longitude);
         y = String.valueOf(mapPointGeo.latitude);
 //        System.out.println("좌표 x, y : " + x + " , " + y);
     }
@@ -496,8 +493,6 @@ public class Bus_main extends AppCompatActivity
     }
 
 
-
-
     /*
      * ActivityCompat.requestPermissions를 사용한 퍼미션 요청의 결과를 리턴받는 메소드입니다.
      */
@@ -506,7 +501,7 @@ public class Bus_main extends AppCompatActivity
                                            @NonNull String[] permissions,
                                            @NonNull int[] grandResults) {
 
-        if ( permsRequestCode == PERMISSIONS_REQUEST_CODE && grandResults.length == REQUIRED_PERMISSIONS.length) {
+        if (permsRequestCode == PERMISSIONS_REQUEST_CODE && grandResults.length == REQUIRED_PERMISSIONS.length) {
 
             // 요청 코드가 PERMISSIONS_REQUEST_CODE 이고, 요청한 퍼미션 개수만큼 수신되었다면
 
@@ -523,12 +518,11 @@ public class Bus_main extends AppCompatActivity
             }
 
 
-            if ( check_result ) {
+            if (check_result) {
                 Log.d("@@@", "start");
                 //위치 값을 가져올 수 있음
                 mapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOnWithHeading);
-            }
-            else {
+            } else {
                 // 거부한 퍼미션이 있다면 앱을 사용할 수 없는 이유를 설명해주고 앱을 종료합니다.2 가지 경우가 있습니다.
 
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this, REQUIRED_PERMISSIONS[0])) {
@@ -537,7 +531,7 @@ public class Bus_main extends AppCompatActivity
                     finish();
 
 
-                }else {
+                } else {
 
                     Toast.makeText(getApplicationContext(), "퍼미션이 거부되었습니다. 설정(앱 정보)에서 퍼미션을 허용해야 합니다. ", Toast.LENGTH_LONG).show();
 
@@ -547,7 +541,7 @@ public class Bus_main extends AppCompatActivity
         }
     }
 
-    void checkRunTimePermission(){
+    void checkRunTimePermission() {
 
         //런타임 퍼미션 처리
         // 1. 위치 퍼미션을 가지고 있는지 체크합니다.
@@ -555,7 +549,7 @@ public class Bus_main extends AppCompatActivity
                 Manifest.permission.ACCESS_FINE_LOCATION);
 
 
-        if (hasFineLocationPermission == PackageManager.PERMISSION_GRANTED ) {
+        if (hasFineLocationPermission == PackageManager.PERMISSION_GRANTED) {
 
             // 2. 이미 퍼미션을 가지고 있다면
             // ( 안드로이드 6.0 이하 버전은 런타임 퍼미션이 필요없기 때문에 이미 허용된 걸로 인식합니다.)
@@ -587,7 +581,6 @@ public class Bus_main extends AppCompatActivity
         }
 
     }
-
 
 
     //여기부터는 GPS 활성화를 위한 메소드들
@@ -644,23 +637,31 @@ public class Bus_main extends AppCompatActivity
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
                 || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
+    /*
+    //버스맵 풀화면으로 이동
+    public void busFullMove(View v){
+        Intent intent = new Intent(Bus_main.this, BusMapFull.class);
+        startActivityForResult(intent, 1000);
+    }
+    */
+
 
     //주변 버스 정보 api 조회 및 저장 메소드
-    public void busData(){
+    public void busData() {
         StringBuffer buffer = new StringBuffer();
-        String busst = null, busx = null, busy=null, busdt = null;
+        String busst = null, busx = null, busy = null, busdt = null;
         int check = 0;
-        String queryUrl = "http://openapi.gbis.go.kr/ws/rest/busstationservice/searcharound?serviceKey=xai6s9wk7CVjmtsSCDrv1%2BNEj11WClzz%2FfEUE7rSXDoYo%2Bj%2BmergaU9GzMabdOFNDDgeFZIsVPw4LscETN2aDg%3D%3D&x="+x+"&y="+y;
+        String queryUrl = "http://openapi.gbis.go.kr/ws/rest/busstationservice/searcharound?serviceKey=xai6s9wk7CVjmtsSCDrv1%2BNEj11WClzz%2FfEUE7rSXDoYo%2Bj%2BmergaU9GzMabdOFNDDgeFZIsVPw4LscETN2aDg%3D%3D&x=" + x + "&y=" + y;
         //String queryUrl = "http://openapi.gbis.go.kr/ws/rest/busstationservice/searcharound?serviceKey=xai6s9wk7CVjmtsSCDrv1%2BNEj11WClzz%2FfEUE7rSXDoYo%2Bj%2BmergaU9GzMabdOFNDDgeFZIsVPw4LscETN2aDg%3D%3D&x=127.033257&y=37.206906" ;
         try {
 
-            URL url= new URL(queryUrl);//문자열로 된 요청 url을 URL 객체로 생성.
-            InputStream  is = url.openStream(); //url위치로 입력스트림 연결
+            URL url = new URL(queryUrl);//문자열로 된 요청 url을 URL 객체로 생성.
+            InputStream is = url.openStream(); //url위치로 입력스트림 연결
 
 
             BufferedReader rd = new BufferedReader(new InputStreamReader(is, "UTF-8"));
 
-            XmlPullParserFactory factory= XmlPullParserFactory.newInstance();
+            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
             XmlPullParser parser = factory.newPullParser();
             parser.setInput(rd); //inputstream 으로부터 xml 입력받기
 
@@ -668,31 +669,27 @@ public class Bus_main extends AppCompatActivity
 
             parser.next();
             int eventType = parser.getEventType();
-            while( eventType != XmlPullParser.END_DOCUMENT ){
-                switch( eventType ){
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                switch (eventType) {
                     case XmlPullParser.START_DOCUMENT:
                         break;
 
                     case XmlPullParser.START_TAG:
-                        tag= parser.getName();//태그 이름 얻어오기
-                        if(tag.equals("busStationAroundList")) ;// 첫번째 검색결과
-                        else if(tag.equals("stationName")) {
+                        tag = parser.getName();//태그 이름 얻어오기
+                        if (tag.equals("busStationAroundList")) ;// 첫번째 검색결과
+                        else if (tag.equals("stationName")) {
                             parser.next();
-                            busst=parser.getText();
-                        }
-                        else if(tag.equals("x")) {
+                            busst = parser.getText();
+                        } else if (tag.equals("x")) {
                             parser.next();
-                            busx=parser.getText();
-                        }
-                        else if(tag.equals("y")) {
+                            busx = parser.getText();
+                        } else if (tag.equals("y")) {
                             parser.next();
-                            busy=parser.getText();
-                        }
-                        else if(tag.equals("distance")) {
+                            busy = parser.getText();
+                        } else if (tag.equals("distance")) {
                             parser.next();
-                            busdt=parser.getText();
-                        }
-                        else
+                            busdt = parser.getText();
+                        } else
                             parser.next();
                         break;
 
@@ -700,27 +697,27 @@ public class Bus_main extends AppCompatActivity
                         break;
 
                     case XmlPullParser.END_TAG:
-                        tag= parser.getName(); //태그 이름 얻어오기
+                        tag = parser.getName(); //태그 이름 얻어오기
 
-                        if(tag.equals("busStationAroundList")) { // 첫번째 검색결과종료..줄바꿈
-                            if(check==0) {
+                        if (tag.equals("busStationAroundList")) { // 첫번째 검색결과종료..줄바꿈
+                            if (check == 0) {
                                 data = busst + "/" + busdt + "m/" + busx + "/" + busy + "/#";
                                 check++;
-                            }
-                            else
+                            } else
                                 data += busst + "/" + busdt + "m/" + busx + "/" + busy + "/#";
                         }
                         break;
                 }
-                eventType= parser.next();
+                eventType = parser.next();
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    Button.OnClickListener nearStationListener = new Button.OnClickListener(){
-        public void onClick(View v){
+
+    Button.OnClickListener nearStationListener = new Button.OnClickListener() {
+        public void onClick(View v) {
             try {
                 busData();
                 bdata = data.split("#");
@@ -730,7 +727,7 @@ public class Bus_main extends AppCompatActivity
                 }
                 //onCurrentLocationUpdate(); ???
                 System.out.println("@@@x : " + x + "y : " + y);
-            }catch (Exception e){
+            } catch (Exception e) {
                 System.out.println(e);
             }
             //뷰페이저 부분
@@ -743,14 +740,11 @@ public class Bus_main extends AppCompatActivity
         }
     };
 
-/*
     public void cityCodeAPI(){
         boolean inCD = false, inCN = false;
         String city_code = null, city_name = null;
 
-        System.out.println("아아");
         if (!help.City_ConfirmTable()) {
-            System.out.println("아아아");
             try {
                 URL url = new URL("http://openapi.tago.go.kr/openapi/service/BusRouteInfoInqireService/getCtyCodeList?&ServiceKey=" + key); //검색 URL
 
@@ -797,7 +791,6 @@ public class Bus_main extends AppCompatActivity
                 e.printStackTrace();
             }
         }
-        System.out.println("아아아아");
 
     }
 
@@ -866,7 +859,6 @@ public class Bus_main extends AppCompatActivity
                                 }
                             case XmlPullParser.END_TAG: //parser가 종료태그 만났을 때 ex) </ul>
                                 if (parser.getName().equals("item")) {
-                                    System.out.println(city.get(i)+"하하하하하");
                                     help.BusDB_insert(routeid, city.get(i), routeno, routetp, startnodenm, endnodenm, 0);
                                     //busAdapter.addItem(routeno, routetp, endnodenm, startnodenm, "0");
                                 }
@@ -879,9 +871,9 @@ public class Bus_main extends AppCompatActivity
                 }
             }
         }
-    }*/
+    }
 
-    /*private ArrayList<String> getDBFromCityTable() {
+    private ArrayList<String> getDBFromCityTable() {
         ArrayList<String> tmp = new ArrayList<>();
 
         Cursor search_cursor = help.City_Select();
@@ -892,6 +884,6 @@ public class Bus_main extends AppCompatActivity
         search_cursor.close();
 
         return tmp;
-    }*/
+    }
 
 }
