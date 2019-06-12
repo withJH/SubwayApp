@@ -227,8 +227,8 @@ public class BusNearbySecondFragment extends Fragment {
         StringBuffer buffer = new StringBuffer();
         String infolist = null,infolist2 = null;
         int check = 0;
-        //String queryUrl = "http://openapi.gbis.go.kr/ws/rest/busarrivalservice?serviceKey=xai6s9wk7CVjmtsSCDrv1%2BNEj11WClzz%2FfEUE7rSXDoYo%2Bj%2BmergaU9GzMabdOFNDDgeFZIsVPw4LscETN2aDg%3D%3D&stationId=" + id+"&routeId="+rid+"&staOrder="+s;
-        String queryUrl = "http://openapi.gbis.go.kr/ws/rest/busarrivalservice?serviceKey=xai6s9wk7CVjmtsSCDrv1%2BNEj11WClzz%2FfEUE7rSXDoYo%2Bj%2BmergaU9GzMabdOFNDDgeFZIsVPw4LscETN2aDg%3D%3D&stationId=200000194&routeId=200000010&staOrder=132";
+        String queryUrl = "http://openapi.gbis.go.kr/ws/rest/busarrivalservice?serviceKey=xai6s9wk7CVjmtsSCDrv1%2BNEj11WClzz%2FfEUE7rSXDoYo%2Bj%2BmergaU9GzMabdOFNDDgeFZIsVPw4LscETN2aDg%3D%3D&stationId=" + id+"&routeId="+rid+"&staOrder="+s;
+        //String queryUrl = "http://openapi.gbis.go.kr/ws/rest/busarrivalservice?serviceKey=xai6s9wk7CVjmtsSCDrv1%2BNEj11WClzz%2FfEUE7rSXDoYo%2Bj%2BmergaU9GzMabdOFNDDgeFZIsVPw4LscETN2aDg%3D%3D&stationId=200000194&routeId=200000010&staOrder=132";
         try {
 
             URL url= new URL(queryUrl);//문자열로 된 요청 url을 URL 객체로 생성.
