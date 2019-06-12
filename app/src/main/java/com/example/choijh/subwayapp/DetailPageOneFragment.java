@@ -43,8 +43,8 @@ import retrofit2.http.Query;
 
 public class DetailPageOneFragment extends Fragment {
 
-    String STATION_CD;
-    String STATION_NAME;
+    String STATION_CD = "0151";
+    String STATION_NAME = "시청";
 
     String KEY="44714e494967757334386561554557";
     String TYPE ="xml";
@@ -53,10 +53,10 @@ public class DetailPageOneFragment extends Fragment {
     int END_INDEX = 5;
 
     InputStream is = null;
-    String stationData = getXmlData();
-    String data1 = getXmlDataSchedule(1);
-    String data2 = getXmlDataSchedule(2);
-    String data3 = getXmlDataSchedule(3);
+    String stationData;
+    String data1;
+    String data2;
+    String data3;
 
     RadioButton btn1;
     RadioButton btn2;
@@ -92,10 +92,12 @@ public class DetailPageOneFragment extends Fragment {
 
     }
 
-    public static DetailPageOneFragment newInstance(int page){
+    public static DetailPageOneFragment newInstance(int page, String stationName, String stationCode){
         Bundle args = new Bundle();
 
         DetailPageOneFragment fragment = new DetailPageOneFragment();
+        args.putString("station", stationName);
+        args.putString("code", stationCode);
         fragment.setArguments(args);
         return fragment;
     }
@@ -120,6 +122,10 @@ public class DetailPageOneFragment extends Fragment {
 
 
         StrictMode.enableDefaults();
+        stationData = getXmlData();
+        data1 = getXmlDataSchedule(1);
+        data2 = getXmlDataSchedule(2);
+        data3 = getXmlDataSchedule(3);
 
         //기준역 이름 설정
         stationName = v.findViewById(R.id.stationName);

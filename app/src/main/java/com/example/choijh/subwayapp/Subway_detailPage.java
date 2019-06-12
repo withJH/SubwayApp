@@ -97,18 +97,11 @@ public class Subway_detailPage extends AppCompatActivity {
         ibtn5.setOnClickListener(ibtnOnClickListener);
 
 
-        DetailPageOneFragment fragment = new DetailPageOneFragment(); // Fragment 생성
-        DetailPageTwoFragment fragment2 = new DetailPageTwoFragment();
-        Bundle bundle = new Bundle();
-        bundle.putString("station", STATION_NM);
-        bundle.putString("code", STATION_CD);// Key, Value
-        fragment.setArguments(bundle);
-        fragment2.setArguments(bundle);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
 
 
-        mDetailPagerAdapter = new DetailPagerAdapter(getSupportFragmentManager(),tabLayout.getTabCount());
+        mDetailPagerAdapter = new DetailPagerAdapter(getSupportFragmentManager(),tabLayout.getTabCount(), STATION_NM, STATION_CD);
 
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mDetailPagerAdapter);

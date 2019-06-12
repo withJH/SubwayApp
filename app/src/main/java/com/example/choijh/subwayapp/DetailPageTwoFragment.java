@@ -94,10 +94,12 @@ public class DetailPageTwoFragment  extends Fragment {
         // Required empty public constructor
     }
 
-    public static DetailPageTwoFragment newInstance(int page){
+    public static DetailPageTwoFragment newInstance(int page, String stationName, String stationCode){
         Bundle args = new Bundle();
 
         DetailPageTwoFragment fragment = new DetailPageTwoFragment();
+        args.putString("station", stationName);
+        args.putString("code", stationCode);
         fragment.setArguments(args);
         return fragment;
     }
