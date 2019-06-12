@@ -16,7 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".test"></activity>
+        <activity android:name=".Bus_favorite"></activity>
+        <activity android:name=".Subway_favorite" />
+        <activity android:name=".test" />
         <activity android:name=".BusMapFull" />
         <activity android:name=".Bus_nearby" />
         <activity android:name=".Bus_lost_property" />
@@ -83,7 +85,7 @@
         <activity
             android:name=".Subway_detailPage"
             android:label="Subway_detailPage" />
-        <activity android:name=".Bus_search"/>
+        <activity android:name=".Bus_search" />
     </application>
 
 </manifest>
